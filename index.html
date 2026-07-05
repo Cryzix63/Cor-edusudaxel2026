@@ -370,7 +370,7 @@ const TABS=[
 const LINK_CATS=[
   {id:'airbnb',label:'Airbnb',icon:'🛏️',tab:'airbnb',
    statuses:[['watch','À regarder'],['booked','Réservé'],['cancelled','Annulé']],
-   zones:[['seoul1','Séoul · Séjour 1 (8–14 août)','2026-08-08','2026-08-14'],['jeonju','Jeonju (14–15 août)','2026-08-14','2026-08-15'],['gyeongju','Gyeongju (15–17 août)','2026-08-15','2026-08-17'],['busan','Busan (17–20 août)','2026-08-17','2026-08-20'],['seoul2','Séoul · Séjour 2 (20–22 août)','2026-08-20','2026-08-22'],['jeju','Jeju · Seogwipo (22–25 août)','2026-08-22','2026-08-25'],['seoul3','Séoul · Séjour 3 (25–30 août)','2026-08-25','2026-08-30'],['autre','Autre / à classer']],
+   zones:[['seoul1','Séoul · Séjour 1 (8–14 août)','2026-08-08','2026-08-14'],['jeonju','Jeonju (14–15 août)','2026-08-14','2026-08-15'],['gyeongju','Gyeongju (15–17 août)','2026-08-15','2026-08-17'],['busan','Busan (17–20 août)','2026-08-17','2026-08-20'],['seoul2','Séoul · Séjour 2 (20–22 août)','2026-08-20','2026-08-22'],['jeju1','Jeju · Seogwipo (22–24 août)','2026-08-22','2026-08-24'],['jeju2','Jeju · Seongsan (24–25 août)','2026-08-24','2026-08-25'],['seoul3','Séoul · Séjour 3 (25–30 août)','2026-08-25','2026-08-30'],['autre','Autre / à classer']],
    fields:[{k:'zone',label:'Ville / période',opts:'zones'},{k:'title',label:'Titre / destination'},{k:'dates',label:'Dates prévues'},{k:'price',label:'Prix total (€)'},{k:'notes',label:'Notes / commentaires',area:true}]},
   {id:'flights',label:'Billet d\u2019avion',icon:'✈️',tab:'flights',
    statuses:[['toreserve','À réserver'],['booked','Réservé'],['used','Utilisé']],
@@ -645,8 +645,8 @@ const NOTE_WEATHER='<b>Chaud et humide</b> (30–35 °C, mousson possible). Eau,
 
 function airbnbSeed(){
   const cat=LINK_CATS.find(c=>c.id==='airbnb');const zs=(cat&&cat.zones)||[];
-  const WHERE={seoul1:'Hongdae / Mapo-gu',jeonju:'Village hanok (Jeonju Hanok Maeul)',gyeongju:'Centre — Hwangnam-dong (près Daereungwon)',busan:'Haeundae ou Seomyeon',seoul2:'Hongdae (même base qu\'au séjour 1)',jeju:'Seogwipo (2 nuits) + Seongsan (1 nuit)',seoul3:'Hongdae / proche LoL Park'};
-  const NOTES={seoul1:'Proche station Hongik Univ. : AREX direct depuis l\'aéroport + ligne 2 (LoL Park). Annulation gratuite. Quartier vivant.',jeonju:'Guesthouse hanok au cœur du village (futon, ondol). 1 nuit.',gyeongju:'À pied des tombes Daereungwon, Anapji et Hwangnidan-gil (illuminés le soir).',busan:'Haeundae (plage + métro) ou Seomyeon (central). 3 nuits, bien situé pour les 3 zones.',seoul2:'Même zone pratique (ligne 2 / AREX) pour les playoffs à LoL Park.',jeju:'SANS VOITURE : 2 nuits à Seogwipo (sud + Hallasan) puis 1 nuit à l\'est près de Seongsan (côte est + Manjanggul sur la route de l\'aéroport). Bus 201/281 + Naver Map. Annulation gratuite.',seoul3:'Dernier séjour = finale LCK : rester proche de LoL Park (Jongno/ligne 2) ou Hongdae.'};
+  const WHERE={seoul1:'Central (Euljiro/Myeongdong) ou Hongdae/Sinchon',jeonju:'Village hanok (Jeonju Hanok Maeul)',gyeongju:'Centre — Hwangnam-dong (près Daereungwon)',busan:'Haeundae (T1 Base Camp) ou Seomyeon (central)',seoul2:'Même base, idéalement central (proche LoL Park)',jeju1:'Seogwipo (sud) — 2 nuits',jeju2:'Seongsan (est) — 1 nuit',seoul3:'Central proche LoL Park (finale)'};
+  const NOTES={seoul1:'LoL Park est à Jongno (station Jonggak, ligne 1). Le + malin : Euljiro/Myeongdong (~10 min de LoL Park, palais & Namsan à pied). Ambiance + aéroport/Gimpo : Hongdae ou Sinchon (AREX direct, T1 Base Camp), ~25-30 min de LoL Park. Annulation gratuite.',jeonju:'Guesthouse hanok au cœur du village (futon, ondol). 1 nuit.',gyeongju:'À pied des tombes Daereungwon, Anapji et Hwangnidan-gil (illuminés le soir).',busan:'Busan est étalée : loge près du métro ligne 2. Haeundae = plage + nouveau T1 Base Camp + journée est facile. Seomyeon = le + central (lignes 1+2) pour couvrir est/ouest. 3 nuits.',seoul2:'Soirs de match tardifs (fin ~minuit) : une base centrale (Euljiro/Myeongdong, ~10 min de LoL Park) évite le stress du dernier métro. Sinon reprends ta zone du Séjour 1.',jeju1:'SANS VOITURE — base du sud : cascades (Jeongbang, Jusangjeolli, Cheonjiyeon) + porc noir, et Hallasan par le bus 281. Annulation gratuite.',jeju2:'SANS VOITURE — 1 nuit à l\'est près de Seongsan : Ilchulbong, Seopjikoji, puis Manjanggul sur la route de l\'aéroport (bus 201). Dormir ici = lever de soleil facile.',seoul3:'Demi + finale ici. Reste proche de LoL Park (Jongno/Euljiro). Attention : la GRANDE finale peut se jouer dans une plus grande salle (Goyang, Incheon…) — confirme le lieu quand le calendrier tombe.'};
   return zs.filter(z=>z[0]!=='autre').map(z=>({id:'seed_'+z[0],url:'',status:'watch',created:Date.now(),zone:z[0],title:WHERE[z[0]]||'',dates:(z[2]&&z[3])?zoneDatesLabel(z):'',price:'',notes:NOTES[z[0]]||''}));
 }
 function flightsSeed(){
@@ -690,6 +690,15 @@ function normalize(s){
   s.links=s.links||{};
   LINK_CATS.forEach(c=>{s.links[c.id]=Array.isArray(s.links[c.id])?s.links[c.id]:[];});
   if(!s.links.airbnb.length)s.links.airbnb=airbnbSeed();
+  else{
+    const seedArr=airbnbSeed();const seedM={},valid={};
+    seedArr.forEach(x=>{seedM[x.zone]=x;valid[x.zone]=1;});
+    s.links.airbnb=s.links.airbnb.filter(e=>!(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')&&!valid[e.zone]));
+    s.links.airbnb.forEach(e=>{if(e&&e.zone==='jeju')e.zone='jeju1';});
+    s.links.airbnb.forEach(e=>{if(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')){const sd=seedM[e.zone];if(sd){e.title=sd.title;e.dates=sd.dates;e.notes=sd.notes;}}});
+    const present={};s.links.airbnb.forEach(e=>{if(e)present[e.zone]=1;});
+    seedArr.forEach(sd=>{if(!present[sd.zone])s.links.airbnb.push(sd);});
+  }
   if(!s.links.flights.length)s.links.flights=flightsSeed();
   s.budget=s.budget.filter(b=>b.id!=='airbnb_auto');
   s.budget.forEach(b=>{if(b.auto&&b.id!=='hotel')delete b.auto;});
