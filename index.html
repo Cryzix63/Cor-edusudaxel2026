@@ -348,7 +348,7 @@ const Store=(()=>{
     }
   };
 })();
-const KEY='coree_state_v10', OLD_KEY='coree_state_v9';
+const KEY='coree_state_v13', OLD_KEY='coree_state_v12';
 
 /* ===================== HELPERS ===================== */
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -363,16 +363,16 @@ const TABS=[
   {id:'prep',ic:'✅',label:'Préparatifs'},
   {id:'info',ic:'ℹ️',label:'Infos'},
   {id:'airbnb',ic:'🛏️',label:'Airbnb'},
-  {id:'flights',ic:'✈️',label:'Vols'},
+  {id:'flights',ic:'🎫',label:'Résas'},
   {id:'links',ic:'🔗',label:'Liens'}
 ];
 // Architecture évolutive : ajoute une catégorie ici (+ STATE.links[id]) pour un nouvel onglet de liens.
 const LINK_CATS=[
-  {id:'airbnb',label:'Airbnb',icon:'🛏️',tab:'airbnb',
+  {id:'airbnb',label:'Airbnb',plural:'Logements',icon:'🛏️',tab:'airbnb',
    statuses:[['watch','À regarder'],['booked','Réservé'],['cancelled','Annulé']],
    zones:[['seoul1','Séoul · Séjour 1 (8–14 août)','2026-08-08','2026-08-14'],['jeonju','Jeonju (14–15 août)','2026-08-14','2026-08-15'],['gyeongju','Gyeongju (15–17 août)','2026-08-15','2026-08-17'],['busan','Busan (17–20 août)','2026-08-17','2026-08-20'],['seoul2','Séoul · Séjour 2 (20–22 août)','2026-08-20','2026-08-22'],['jeju1','Jeju · Seogwipo (22–24 août)','2026-08-22','2026-08-24'],['jeju2','Jeju · Seongsan (24–25 août)','2026-08-24','2026-08-25'],['seoul3','Séoul · Séjour 3 (25–30 août)','2026-08-25','2026-08-30'],['autre','Autre / à classer']],
    fields:[{k:'zone',label:'Ville / période',opts:'zones'},{k:'title',label:'Titre / destination'},{k:'dates',label:'Dates prévues'},{k:'price',label:'Prix total (€)'},{k:'notes',label:'Notes / commentaires',area:true}]},
-  {id:'flights',label:'Billet d\u2019avion',icon:'✈️',tab:'flights',
+  {id:'flights',label:'billet ou r\u00e9servation',plural:'Billets & r\u00e9servations',icon:'\ud83c\udfab',tab:'flights',
    statuses:[['toreserve','À réserver'],['booked','Réservé'],['used','Utilisé']],
    fields:[{k:'airline',label:'Compagnie aérienne'},{k:'destination',label:'Destination'},{k:'dates',label:'Dates'},{k:'price',label:'Prix estimé'},{k:'notes',label:'Notes',area:true}]}
 ];
@@ -402,35 +402,37 @@ const DAYS=[
   {t:'18h30',ty:'food',n:'🍗 Chimaek de bienvenue',d:'<b>(11)</b> Poulet frit + bière à Hongdae',p:'~12 €',pt:''},
   {t:'20h30',ty:'culture',n:'🕹️ Arcades & vie nocturne Hongdae',d:'<b>(35)</b> Claw machines, rythm games · <b>(37)</b> rues animées, street performers',p:'~8 €',pt:''}
 ]},
-{id:'J2',phase:'seoul1',date:'2026-08-09',title:'Palais, hanbok & tradition',sub:'Dimanche 9 août',total:'~95 €',slots:[
+{id:'J2',phase:'seoul1',date:'2026-08-09',title:'Palais, hanbok & 🌃 N Tower de nuit',sub:'Dimanche 9 août',total:'~110 €',slots:[
   {t:'09h30',ty:'culture',n:'👘 Gyeongbokgung en hanbok + 📸 shooting',d:'<b>(1)(2)</b> Hanbok loué (entrée gratuite) · séance photo · relève de la garde 10h',p:'~20 €',pt:''},
   {t:'11h30',ty:'culture',n:'Village Bukchon Hanok',d:'<b>(3)</b> Ruelles traditionnelles, vue sur les toits',p:'Gratuit',pt:'free'},
   {t:'13h00',ty:'food',n:'Déjeuner — Marché Gwangjang',d:'<b>(9)</b> Bindaetteok + mayak gimbap · vu sur Netflix',p:'~8 €',pt:''},
-  {t:'15h00',ty:'culture',n:'Sanctuaire Jongmyo',d:'<b>(7)</b> Sanctuaire royal UNESCO, solennel (visite parfois guidée)',p:'~1 €',pt:''},
+  {t:'15h00',ty:'culture',n:'Sanctuaire Jongmyo',d:'<b>(7)</b> Sanctuaire royal UNESCO, solennel · fermé le mardi, donc c\'est aujourd\'hui',p:'~1 €',pt:''},
   {t:'16h00',ty:'culture',n:'🍵 Insadong + cérémonie du thé',d:'<b>(4)</b> Artisanat + rituel du thé · <b>(5)</b> Deoksugung tout près si le temps',p:'~12 €',pt:''},
   {t:'18h00',ty:'food',n:'🍧 Dessert bingsu',d:'<b>(15)</b> Glace pilée — parfait par la chaleur',p:'~6 €',pt:''},
-  {t:'19h30',ty:'food',n:'🥩 Dîner — BBQ coréen',d:'<b>(10)</b> Samgyeopsal/galbi + panchan',p:'~18 €',pt:''}
+  {t:'19h30',ty:'food',n:'🥩 Dîner — BBQ coréen Jongno',d:'<b>(10)</b> Samgyeopsal/galbi + panchan',p:'~18 €',pt:''},
+  {t:'21h00',ty:'culture',n:'🌃 Tour N Seoul (Namsan) DE NUIT',d:'<b>(22)</b> Téléphérique depuis <b>Myeongdong sortie 3</b> (10-15 min à pied) · dimanche = fermeture <b>23h</b>, dernière entrée 22h30 · coucher de soleil ~19h35 donc pleine nuit · billet observatoire ≠ téléphérique',p:'~9–22 €',pt:''}
 ]},
-{id:'J3',phase:'seoul1',date:'2026-08-10',title:'Changdeokgung, Seongsu & Euljiro',sub:'Lundi 10 août',total:'~80 €',slots:[
-  {t:'09h00',ty:'culture',n:'Changdeokgung + Jardin secret Huwon',d:'<b>(6)</b> Palais UNESCO · <b>réserver le créneau Huwon</b> · le plus beau jardin royal',p:'~8 €',pt:''},
+{id:'J3',phase:'seoul1',date:'2026-08-10',title:'Pèlerinage esport (LoL) + Han la nuit',sub:'Lundi 10 août',total:'~95 €',slots:[
+  {t:'10h00',ty:'lol',n:'🏢 Gen.G Tower / GLHF',d:'<b>(18)</b> QG de Gen.G · café GLHF, boutique, photo',p:'~5 €',pt:''},
+  {t:'12h30',ty:'lol',n:'🎮 T1 Base Camp (Hongdae)',d:'<b>(19)</b> PC bang officiel T1 (équipe de Faker) · setups, merch · à côté de chez toi',p:'~3 €',pt:''},
+  {t:'14h30',ty:'lol',n:'🖥️ Riot PC Bang + Riot Store (LoL Park)',d:'<b>(17)</b> Gran Seoul, Jongno · station <b>Jonggak ligne 1</b> · config pro, ranked coréen + boutique · <b>(20)</b> café gaming si envie',p:'~30 €',pt:''},
+  {t:'18h30',ty:'food',n:'Dîner — Dakgalbi',d:'Poulet sauté gochujang',p:'~12 €',pt:''},
+  {t:'20h30',ty:'nature',n:'🚢 Croisière Han + Fontaine de Banpo',d:'<b>(27)</b> Ferry + show d\'eau lumineux du pont Banpo (le soir)',p:'~15 €',pt:''}
+]},
+{id:'J4',phase:'seoul1',date:'2026-08-11',title:'Changdeokgung, Huwon, Seongsu & Euljiro',sub:'Mardi 11 août',total:'~80 €',slots:[
+  {t:'09h00',ty:'culture',n:'Changdeokgung + Jardin secret Huwon',d:'<b>(6)</b> Palais UNESCO · <b>fermé le lundi → d\'où le mardi</b> · <b>réserver le créneau Huwon ~6 j avant (vers le 5/8)</b> · visite guidée uniquement',p:'~8 €',pt:''},
   {t:'12h30',ty:'food',n:'Déjeuner — Naengmyeon',d:'Nouilles glacées',p:'~10 €',pt:''},
   {t:'14h30',ty:'culture',n:'☕ Seongsu & Seoul Forest',d:'<b>(34)</b> « Brooklyn de Séoul » : cafés design, friperies, marques + parc',p:'~25 €',pt:''},
   {t:'18h00',ty:'food',n:'🍢 Soirée Euljiro « Hipjiro »',d:'<b>(38)</b> Bars cachés, ambiance underground · <b>(25)</b> DDP/Dongdaemun illuminé tout près si le temps',p:'~20 €',pt:''}
 ]},
-{id:'J4',phase:'seoul1',date:'2026-08-11',title:'Pèlerinage esport (LoL)',sub:'Mardi 11 août',total:'~95 €',slots:[
-  {t:'10h00',ty:'lol',n:'🏢 Gen.G Tower / GLHF',d:'<b>(18)</b> QG de Gen.G · café GLHF, boutique, photo',p:'~5 €',pt:''},
-  {t:'12h30',ty:'lol',n:'🎮 T1 Base Camp',d:'<b>(19)</b> PC bang officiel T1 (équipe de Faker) · setups, merch',p:'~3 €',pt:''},
-  {t:'14h30',ty:'lol',n:'🖥️ Riot PC Bang + Riot Store (LoL Park)',d:'<b>(17)</b> Config pro, ranked coréen + boutique officielle · <b>(20)</b> café gaming si envie',p:'~30 €',pt:''},
-  {t:'18h30',ty:'food',n:'Dîner — Dakgalbi',d:'Poulet sauté gochujang',p:'~12 €',pt:''},
-  {t:'20h30',ty:'nature',n:'🚢 Croisière Han + Fontaine de Banpo',d:'<b>(27)</b> Ferry + show d\'eau lumineux du pont Banpo (le soir)',p:'~15 €',pt:''}
-]},
-{id:'J5',phase:'seoul1',date:'2026-08-12',title:'Namsan, Myeongdong & MATCH LCK',sub:'Mercredi 12 août — 🏆',total:'~110 €',slots:[
-  {t:'09h30',ty:'nature',n:'Parc Namsan + Tour N Seoul',d:'<b>(22)</b> Vue 360°, cadenas d\'amour',p:'~9–13 €',pt:''},
-  {t:'12h00',ty:'food',n:'Déjeuner — Myeongdong Kyoja',d:'Kalguksu depuis 1966',p:'~8 €',pt:''},
-  {t:'13h30',ty:'culture',n:'🛍️ Myeongdong + Namdaemun',d:'<b>(40)</b> K-beauty Olive Young · <b>(13)</b> marché Namdaemun · <b>(21)</b> disquaires/figurines si le temps',p:'~20 €',pt:''},
+{id:'J5',phase:'seoul1',date:'2026-08-12',title:'Myeongdong & PREMIER MATCH LCK',sub:'Mercredi 12 août — 🏆',total:'~105 €',slots:[
+  {t:'10h30',ty:'culture',n:'🛍️ Myeongdong + Namdaemun',d:'<b>(40)</b> K-beauty Olive Young (repérage pour ta sœur) · <b>(13)</b> marché Namdaemun · matinée libérée (N Tower est passée au 9)',p:'~15 €',pt:''},
+  {t:'12h30',ty:'food',n:'Déjeuner — Myeongdong Kyoja',d:'Kalguksu depuis 1966',p:'~8 €',pt:''},
+  {t:'14h00',ty:'culture',n:'💿 Disquaires & figurines',d:'<b>(21)</b> Vinyles, figurines, goodies · Myeongdong/Jongno',p:'~20 €',pt:''},
+  {t:'16h15',ty:'lol',n:'Arrivée LoL Park — fan zone',d:'45 min avant · bornes gratuites, photos · Gran Seoul, sortie 1 de Jonggak',p:'—',pt:'free'},
   {t:'17h00',ty:'lol',n:'🏆 MATCH LCK — LoL Park (CHZZK)',d:'<b>(16)</b> Arène 450 places · bâtons lumineux · billet via NOL World ~48h avant',p:'~24 €',pt:''},
   {t:'20h30',ty:'food',n:'🍢 After-match — Tteokbokki pojangmacha',d:'<b>(12)</b> Tente de rue : tteokbokki, soondae, soju',p:'~9 €',pt:''},
-  {t:'22h00',ty:'culture',n:'🎤 Noraebang (karaoké)',d:'<b>(36)</b> Salon privé pour finir la soirée',p:'~8 €',pt:''}
+  {t:'22h00',ty:'culture',n:'🎤 Noraebang (karaoké)',d:'<b>(36)</b> Salon privé pour finir la soirée · box solo possibles',p:'~8 €',pt:''}
 ]},
 {id:'J6',phase:'seoul1',date:'2026-08-13',title:'Bukhansan & détente',sub:'Jeudi 13 août',total:'~55 €',slots:[
   {t:'07h00',ty:'nature',n:'🥾 Randonnée Bukhansan (demi-journée)',d:'<b>(30)</b> Sommet Baegundae · vues sur Séoul · parc national',p:'~2 €',pt:''},
@@ -476,25 +478,30 @@ const DAYS=[
   {t:'15h00',ty:'nature',n:'🏖️ Plage Haeundae + 🌆 Busan X the Sky',d:'<b>(64)</b> Baignade · <b>(69)</b> Observatoire 100e étage si le temps',p:'~15 €',pt:''},
   {t:'18h00',ty:'sleep',n:'🧖 Spa Land (Shinsegae Centum)',d:'<b>(72)</b> Jjimjilbang haut de gamme, saunas variés',p:'~12 €',pt:''}
 ]},
-{id:'J12',phase:'busan',date:'2026-08-19',title:'Busan sud — Songdo & Taejongdae',sub:'Mercredi 19 août',total:'~75 €',slots:[
+{id:'J12',phase:'busan',date:'2026-08-19',title:'Busan sud — Songdo, Taejongdae & ⚾ LOTTE GIANTS',sub:'Mercredi 19 août',total:'~90 €',slots:[
   {t:'09h30',ty:'nature',n:'Songdo Skywalk & téléphérique',d:'<b>(67)</b> Passerelle de verre + cable car au-dessus de la mer',p:'~12 €',pt:''},
-  {t:'13h00',ty:'food',n:'Déjeuner bord de mer',d:'Fruits de mer / hoe',p:'~14 €',pt:''},
-  {t:'14h30',ty:'nature',n:'Taejongdae',d:'<b>(70)</b> Falaises, phare, petit train panoramique',p:'~4 €',pt:''},
-  {t:'18h30',ty:'food',n:'Dîner — Fruits de mer / coquillages grillés',d:'Dernier soir à Busan',p:'~16 €',pt:''}
+  {t:'12h30',ty:'food',n:'Déjeuner bord de mer',d:'Fruits de mer / hoe',p:'~14 €',pt:''},
+  {t:'14h00',ty:'nature',n:'Taejongdae',d:'<b>(70)</b> Falaises, phare, petit train panoramique',p:'~4 €',pt:''},
+  {t:'17h30',ty:'food',n:'Dîner rapide près du stade',d:'Ou mieux : poulet frit + bière à emporter en tribune (la tradition)',p:'~10 €',pt:''},
+  {t:'18h30',ty:'culture',n:'⚾ LOTTE GIANTS — Stade Sajik',d:'<b>NOUVEAU</b> · Surnommé « le plus grand karaoké du monde » : l\'ambiance la plus folle de la KBO · métro Sajik (ligne 3) · ⚠️ <b>vérifier que les Giants jouent à domicile</b> (pas de match le lundi) · billets ~7 j avant',p:'~12 €',pt:''}
 ]},
-{id:'J13',phase:'seoul2',date:'2026-08-20',title:'Busan → Séoul — Gangnam & Baseball',sub:'Jeudi 20 août',total:'~110 €',slots:[
-  {t:'09h30',ty:'travel',n:'🚅 KTX Busan → Séoul',d:'~2h40 · réserver à l\'avance · re-check-in',p:'~45 €',pt:'transport'},
-  {t:'14h00',ty:'culture',n:'Gangnam + COEX + 📚 Bibliothèque Starfield',d:'<b>(26)(24)</b> Quartier huppé, étagères de 13 m, Garosu-gil',p:'Gratuit',pt:'free'},
-  {t:'16h30',ty:'culture',n:'🗼 Lotte World Tower — Seoul Sky',d:'<b>(23)</b> 5e tour du monde, plancher de verre au 118e (à côté de Jamsil)',p:'~22 €',pt:''},
-  {t:'18h30',ty:'culture',n:'⚾ Baseball KBO — Jamsil',d:'<b>(45)</b> Ambiance fan (chants, poulet+bière) · LG/Doosan',p:'~12 €',pt:''},
-  {t:'21h30',ty:'food',n:'Chimaek / Pojangmacha',d:'Poulet + bière en rentrant',p:'~12 €',pt:''}
+{id:'J13',phase:'seoul2',date:'2026-08-20',title:'Busan → Séoul — Gangnam, Bongeunsa & ⚾ LG TWINS',sub:'Jeudi 20 août',total:'~100 €',slots:[
+  {t:'09h30',ty:'travel',n:'🚅 KTX Busan → Séoul — RÉSERVÉ',d:'Arrivée <b>11h10</b> · dépose des bagages ou consigne (casiers T-money à la gare si check-in à 15h)',p:'~45 €',pt:'transport'},
+  {t:'12h30',ty:'food',n:'Déjeuner posé',d:'Tu as gagné 1 h : vrai repas assis, pas un truc avalé',p:'~10 €',pt:''},
+  {t:'14h00',ty:'culture',n:'Gangnam + COEX + 📚 Bibliothèque Starfield',d:'<b>(26)(24)</b> Quartier huppé, étagères de 13 m (gratuit)',p:'Gratuit',pt:'free'},
+  {t:'15h30',ty:'culture',n:'Garosu-gil',d:'La rue arborée de Gangnam : boutiques et cafés',p:'~10 €',pt:''},
+  {t:'16h30',ty:'culture',n:'Temple Bongeunsa',d:'<b>NOUVEAU</b> · En face du COEX · gratuit · temple bouddhiste avec les gratte-ciels en fond, LE contraste',p:'Gratuit',pt:'free'},
+  {t:'17h20',ty:'travel',n:'Métro Samseong → Sports Complex',d:'2 stations, 5 min (ligne 2)',p:'~1 €',pt:'transport'},
+  {t:'17h45',ty:'food',n:'🍗 Poulet frit + bière AVANT d\'entrer',d:'La tradition · installation en tribune, tu vois les chants démarrer',p:'~12 €',pt:''},
+  {t:'18h30',ty:'culture',n:'⚾ LG Twins vs KT Wiz — Jamsil',d:'<b>(45)</b> Le match <b>en entier</b> (Seoul Sky est passée au 26) · <b>billets : Ticketlink Global, ouverture jeu. 13/8 à 11h00</b> · côté 1re base = tribune LG',p:'~12 €',pt:''}
 ]},
-{id:'J14',phase:'seoul2',date:'2026-08-21',title:'Playoffs LCK — Match',sub:'Vendredi 21 août — 🏆',total:'~75 €',slots:[
-  {t:'11h00',ty:'culture',n:'Matinée tranquille / valise Jeju',d:'Repos avant le match · préparer le sac pour le vol du lendemain matin',p:'—',pt:'free'},
-  {t:'13h00',ty:'food',n:'Déjeuner — Doenjang Jjigae',d:'Soupe de soja fermenté',p:'~7 €',pt:''},
-  {t:'16h00',ty:'lol',n:'Arrivée LoL Park — fan zone',d:'45 min avant · bornes, photos',p:'—',pt:'free'},
+{id:'J14',phase:'seoul2',date:'2026-08-21',title:'War Memorial, Itaewon & Playoff LCK',sub:'Vendredi 21 août — 🏆',total:'~85 €',slots:[
+  {t:'11h00',ty:'culture',n:'War Memorial of Korea',d:'<b>(43)</b> Mémorial/musée de la guerre · gratuit · station Samgakji (ligne 6) · déplacé du 27 (le DMZ prend toute la journée)',p:'Gratuit',pt:'free'},
+  {t:'13h00',ty:'food',n:'Déjeuner Itaewon — Doenjang Jjigae',d:'Soupe de soja fermenté',p:'~7 €',pt:''},
+  {t:'14h00',ty:'culture',n:'Itaewon / Hannam',d:'<b>(41)</b> Quartier international : concept stores, cafés · 2 stations du War Memorial',p:'~15 €',pt:''},
+  {t:'16h15',ty:'lol',n:'Arrivée LoL Park — fan zone',d:'45 min avant · préparer aussi le sac pour Jeju (vol demain 08h30)',p:'—',pt:'free'},
   {t:'17h00',ty:'lol',n:'🏆 MATCH PLAYOFF — Bo5',d:'<b>(16)</b> Ambiance électrique · 3–4 h',p:'~24 €',pt:''},
-  {t:'21h30',ty:'food',n:'After-match — Pojangmacha',d:'Tteokbokki, soondae, soju',p:'~9 €',pt:''}
+  {t:'21h30',ty:'food',n:'After-match — Pojangmacha',d:'Tteokbokki, soondae, soju · au lit tôt, vol demain matin',p:'~9 €',pt:''}
 ]},
 {id:'J15',phase:'jeju',date:'2026-08-22',title:'Séoul → Jeju — Sud de Seogwipo (sans voiture)',sub:'Samedi 22 août',total:'~95 €',slots:[
   {t:'07h00',ty:'travel',n:'Métro → Gimpo puis ✈️ Jeju',d:'Vol Gimpo→Jeju ~08h30 (1h10) · puis <b>bus 600 ou 182</b> → Seogwipo (~1 h) · check-in Seogwipo (2 nuits)',p:'~35 €',pt:'transport'},
@@ -526,17 +533,20 @@ const DAYS=[
   {t:'15h30',ty:'travel',n:'✈️ Vol Jeju → Gimpo (Séoul)',d:'1h10 · arrivée ~17h · métro → Hongdae (Séjour 3)',p:'~35 €',pt:'transport'},
   {t:'20h30',ty:'food',n:'Dîner retour — Chimaek',d:'De retour à Séoul !',p:'~13 €',pt:''}
 ]},
-{id:'J19',phase:'seoul3',date:'2026-08-26',title:'Journée bonus — Cuisine, DDP & rooftop',sub:'Mercredi 26 août',total:'~85 €',slots:[
-  {t:'10h30',ty:'food',n:'🍳 Cours de cuisine coréenne',d:'<b>(14)</b> Atelier kimchi / tteokbokki / bibimbap — tu repars avec les recettes',p:'~35 €',pt:''},
-  {t:'14h30',ty:'culture',n:'Dongdaemun Design Plaza (DDP)',d:'<b>(25)</b> Architecture Zaha Hadid · marché 24h · superbe illuminé',p:'Gratuit',pt:'free'},
-  {t:'17h30',ty:'culture',n:'Flânerie / shopping libre',d:'Derniers repérages merch, quartier au choix',p:'~variable',pt:''},
-  {t:'19h30',ty:'culture',n:'🍸 Bar rooftop',d:'<b>(28)</b> Vue sur les gratte-ciels illuminés',p:'~18 €',pt:''}
+{id:'J19',phase:'seoul3',date:'2026-08-26',title:'Cuisine, BAPE & 🌆 SEOUL SKY heure bleue',sub:'Mercredi 26 août',total:'~95 €',slots:[
+  {t:'10h30',ty:'food',n:'🍳 Cours de cuisine coréenne',d:'<b>(14)</b> Atelier kimchi / tteokbokki / bibimbap — tu repars avec les recettes · réserver (petits groupes)',p:'~35 €',pt:''},
+  {t:'14h30',ty:'culture',n:'🛍️ BAPE — The Hyundai Seoul (Yeouido)',d:'<b>(39)</b> ~15-20 min de Hongdae (Hapjeong → ligne 9) · bien plus pratique que Cheongdam · le mall vaut le détour (verrière/jardin intérieur)',p:'~variable',pt:''},
+  {t:'18h15',ty:'culture',n:'🌆 Seoul Sky — Lotte World Tower',d:'<b>(23)</b> <b>Heure bleue</b> : jour + coucher de soleil (~19h25) + nuit en une seule visite · billet <b>date-libre</b> Klook ~31 000 ₩ · mercredi = fermeture 22h, dernière entrée 21h · étages 117-123, plancher de verre au 118e',p:'~22 €',pt:''},
+  {t:'21h00',ty:'food',n:'Dîner Jamsil / Seokchon',d:'Balade autour du lac Seokchon avec la tour illuminée en reflet',p:'~14 €',pt:''}
 ]},
-{id:'J20',phase:'seoul3',date:'2026-08-27',title:'DMZ, War Memorial & streetwear',sub:'Jeudi 27 août — Journée chargée',total:'~130 €',slots:[
-  {t:'07h30',ty:'culture',n:'🪖 Excursion DMZ (tour guidé)',d:'<b>(44)</b> 3e tunnel, observatoire Dora, pont de la Liberté · demi-journée · passeport requis',p:'~60 €',pt:''},
-  {t:'14h00',ty:'culture',n:'War Memorial of Korea',d:'<b>(43)</b> Mémorial/musée de la guerre · poignant · gratuit',p:'Gratuit',pt:'free'},
-  {t:'16h00',ty:'culture',n:'🛍️ Itaewon / Hannam — Bape & Palace',d:'<b>(41)(39)</b> Streetwear (BAPE, Palace, Gentle Monster, ADER)',p:'~variable',pt:''},
-  {t:'20h00',ty:'food',n:'Dîner — Hanjeongsik',d:'Festin royal, 20+ petits plats',p:'~35 €',pt:''}
+{id:'J20',phase:'seoul3',date:'2026-08-27',title:'DMZ (7h-16h) puis Palace Hongdae & Hanjeongsik',sub:'Jeudi 27 août',total:'~120 €',slots:[
+  {t:'06h30',ty:'food',n:'⚠️ Petit-déj AVANT le départ',d:'Personne ne te nourrit avant midi sur ces tours · <b>PASSEPORT dans le sac</b> (contrôle militaire)',p:'~5 €',pt:''},
+  {t:'07h00',ty:'travel',n:'🚌 Pickup — station Hongik Univ. sortie 3',d:'<b>RÉSERVÉ</b> · le bus te récupère et te redépose au même endroit',p:'Inclus',pt:'transport'},
+  {t:'07h30',ty:'culture',n:'🪖 Excursion DMZ (journée complète)',d:'<b>(44)</b> 3e tunnel, observatoire Dora, pont de la Liberté · guide obligatoire · ⚠️ vérifier si le déjeuner est inclus',p:'~60 €',pt:''},
+  {t:'16h00',ty:'travel',n:'Retour — dépose Hongik Univ.',d:'Tu es chez toi, aucun trajet à faire',p:'Inclus',pt:'free'},
+  {t:'16h30',ty:'culture',n:'🛹 Palace Skateboards — Hongdae',d:'<b>(39)</b> 30 Hongik-ro 5-gil, Mapo-gu · <b>à 5 min à pied</b> · thème skatepark de Southbank · ⚠️ système de raffle à l\'entrée les jours de drop',p:'~variable',pt:''},
+  {t:'17h30',ty:'sleep',n:'Douche / repos',d:'Après 9 h de bus et de DMZ, c\'est mérité',p:'—',pt:'free'},
+  {t:'19h30',ty:'food',n:'🍲 Dîner — Hanjeongsik',d:'Festin royal, 20+ petits plats · l\'expérience traditionnelle (Insadong/Jongno)',p:'~35 €',pt:''}
 ]},
 {id:'J21',phase:'seoul3',date:'2026-08-28',title:'Demi-finale LCK + souvenirs',sub:'Vendredi 28 août — 🏆',total:'~90 €',slots:[
   {t:'11h00',ty:'lol',n:'🛍️ Riot Store + souvenirs',d:'Derniers achats officiels · jerseys, goodies',p:'~50 €',pt:''},
@@ -645,22 +655,44 @@ const NOTE_WEATHER='<b>Chaud et humide</b> (30–35 °C, mousson possible). Eau,
 
 function airbnbSeed(){
   const cat=LINK_CATS.find(c=>c.id==='airbnb');const zs=(cat&&cat.zones)||[];
-  const WHERE={seoul1:'Central (Euljiro/Myeongdong) ou Hongdae/Sinchon',jeonju:'Village hanok (Jeonju Hanok Maeul)',gyeongju:'Centre — Hwangnam-dong (près Daereungwon)',busan:'Haeundae (T1 Base Camp) ou Seomyeon (central)',seoul2:'Même base, idéalement central (proche LoL Park)',jeju1:'Seogwipo (sud) — 2 nuits',jeju2:'Seongsan (est) — 1 nuit',seoul3:'Central proche LoL Park (finale)'};
-  const NOTES={seoul1:'LoL Park est à Jongno (station Jonggak, ligne 1). Le + malin : Euljiro/Myeongdong (~10 min de LoL Park, palais & Namsan à pied). Ambiance + aéroport/Gimpo : Hongdae ou Sinchon (AREX direct, T1 Base Camp), ~25-30 min de LoL Park. Annulation gratuite.',jeonju:'Guesthouse hanok au cœur du village (futon, ondol). 1 nuit.',gyeongju:'À pied des tombes Daereungwon, Anapji et Hwangnidan-gil (illuminés le soir).',busan:'Busan est étalée : loge près du métro ligne 2. Haeundae = plage + nouveau T1 Base Camp + journée est facile. Seomyeon = le + central (lignes 1+2) pour couvrir est/ouest. 3 nuits.',seoul2:'Soirs de match tardifs (fin ~minuit) : une base centrale (Euljiro/Myeongdong, ~10 min de LoL Park) évite le stress du dernier métro. Sinon reprends ta zone du Séjour 1.',jeju1:'SANS VOITURE — base du sud : cascades (Jeongbang, Jusangjeolli, Cheonjiyeon) + porc noir, et Hallasan par le bus 281. Annulation gratuite.',jeju2:'SANS VOITURE — 1 nuit à l\'est près de Seongsan : Ilchulbong, Seopjikoji, puis Manjanggul sur la route de l\'aéroport (bus 201). Dormir ici = lever de soleil facile.',seoul3:'Demi + finale ici. Reste proche de LoL Park (Jongno/Euljiro). Attention : la GRANDE finale peut se jouer dans une plus grande salle (Goyang, Incheon…) — confirme le lieu quand le calendrier tombe.'};
-  return zs.filter(z=>z[0]!=='autre').map(z=>({id:'seed_'+z[0],url:'',status:'watch',created:Date.now(),zone:z[0],title:WHERE[z[0]]||'',dates:(z[2]&&z[3])?zoneDatesLabel(z):'',price:'',notes:NOTES[z[0]]||''}));
+  const D={
+   seoul1:{t:'Hôtel · Seodaemun-gu (Sinchon) — Airbnb',n:'RÉSERVÉ · Hôte 일운 · 19 Myeongmul-gil, J Tower 9F, Seodaemun-gu (Sinchon). Arrivée dès 15h00, départ avant 11h00. ⚠️ Tu atterris à 11h35 et arrives vers 14h30 → 30 min d\'attente ou dépose des bagages. Sinchon = 1 station de Hongdae (ligne 2), AREX proche, LoL Park ~25-30 min.'},
+   jeonju:{t:'Happiness Full Hanok Guesthouse — Booking',n:'RÉSERVÉ · 64-3 Jeonjucheondong-ro, Wansan-gu. Arrivée 15h00-22h00, départ avant 11h00. ⚠️ Le KTX te dépose vers 11h → tu visites le village avec ton sac : demande une dépose de bagages à l\'hôte, ou consigne à la gare de Jeonju.'},
+   gyeongju:{t:'Pension · Village de Gyochon — Airbnb',n:'RÉSERVÉ · Hôte 채진 · 4-6 Gyochon-gil. Arrivée dès 16h00. 🎁 Bonus : tu dors DANS le village traditionnel de Gyochon (activité 61) — tu l\'as gratuitement. À pied de Daereungwon, Cheomseongdae, Woljeonggyo et Hwangnidan-gil. ⚠️ Arrivée ~13h30 mais check-in 16h → dépose des bagages à demander.'},
+   busan:{t:'Plea De Blanc Hotel & Residence ★★★★ — Booking',n:'RÉSERVÉ · 29 Haeundaehaebyeon-ro 298beon-gil, Haeundae. Arrivée 15h00-00h00, départ avant 11h00. ✅ Haeundae = plage + T1 Base Camp. 💡 Le 17, prends le bus DIRECT Gyeongju → Haeundae (terminal INTERURBAIN, sortie 2 du métro) plutôt que Nopo : tu déposes tes bagages à l\'hôtel avant de filer sur Gamcheon. Un hôtel 4★ accepte toujours la dépose avant check-in.'},
+   seoul2:{t:'YH House Hongdae, Sinchon — Booking',n:'RÉSERVÉ · Dongjuseowon, 367-31 Seongsan-ro, Seodaemun-gu. Arrivée 14h00-23h00, départ avant 11h00. ⚠️ KTX arrivée 11h10 → consigne (casiers T-money) à la gare de Séoul en attendant 14h. Départ le 22 avant 11h : ton vol Jeju est à ~08h30, donc tu seras parti bien avant.'},
+   jeju1:{t:'In Stay Guesthouse (Seogwipo) — Booking',n:'RÉSERVÉ · 21 Soldongsan-ro 22beon-gil, Seogwipo. ⚠️⚠️ Arrivée SEULEMENT 16h00-21h00, départ 7h00-11h00. Tu arrives à Seogwipo vers 11h → écris à l\'hôte pour déposer ton sac le matin, sinon tu fais Jeongbang/Jusangjeolli avec. Check-in réel en soirée. ⚠️ Le 23, départ Hallasan à 05h30 : préviens l\'hôte de ta sortie très matinale.'},
+   jeju2:{t:'Hôtel · Seongsan — Airbnb',n:'RÉSERVÉ · 1 Seongsandeungyong-ro, Seogwipo-si (Jeju-do 63643) — c\'est au pied de Seongsan Ilchulbong. ⚠️ Arrivée dès 15h00, départ avant 10h00. Tu arrives vers 10h30 le 24 → dépose de sac à demander. Le 25 : checkout avant 10h, donc lever de soleil à 07h puis bus 201 vers 09h, ça colle. 🎁 Dormir sur place = lever de soleil sur l\'Ilchulbong à 2 min.'},
+   seoul3:{t:'Airbnb · Donggyo-ro (Hongdae) — Hôte Joy',n:'RÉSERVÉ · 동교로 105, Mapo-gu (Hongdae, Séoul 04003). Arrivée dès 14h00, départ avant 11h00. ✅ Palace Skateboards Hongdae est tout près. Vol Jeju→Gimpo arrivée ~17h le 25 → parfait. ⚠️ Le 30 : checkout avant 11h mais AREX seulement à 14h → laisse tes valises dans les casiers de Hongik Univ. ou de la gare de Séoul.'}
+  };
+  const P={"seoul1": "206,71", "jeonju": "32,42", "gyeongju": "71,36", "busan": "95,03", "seoul2": "79,13", "jeju1": "73,19", "jeju2": "27,40", "seoul3": "181,10"};
+  return zs.filter(z=>z[0]!=='autre').map(z=>({id:'seed_'+z[0],url:'',status:'booked',created:Date.now(),zone:z[0],title:(D[z[0]]&&D[z[0]].t)||'',dates:(z[2]&&z[3])?zoneDatesLabel(z):'',price:P[z[0]]||'',notes:(D[z[0]]&&D[z[0]].n)||''}));
 }
+
 function flightsSeed(){
   return [
    {id:'seedf_ac1',url:'https://www.airchina.fr',status:'booked',created:Date.now(),airline:'Air China — ALLER',destination:'Genève → Pékin → Séoul (ICN)',dates:'7–8 août',price:'~687 € A/R',notes:'GVA 13h20 → PEK 05h25 (+1) · escale ~3 h · PEK 08h40 → ICN 11h35. Bagages jusqu\'à Séoul, transit sans visa.'},
    {id:'seedf_ac2',url:'https://www.airchina.fr',status:'booked',created:Date.now(),airline:'Air China — RETOUR',destination:'Séoul (ICN) → Pékin → Genève',dates:'30–31 août',price:'inclus A/R',notes:'ICN 17h50 → PEK 19h15 · escale · PEK 02h45 → GVA 07h40. Être à ICN vers 14h50.'},
-   {id:'seedf_j1',url:'https://www.jejuair.net',status:'toreserve',created:Date.now(),airline:'Jeju Air / T\'way / Jin Air',destination:'Séoul Gimpo (GMP) → Jeju (CJU)',dates:'22 août — matin',price:'~30–40 €',notes:'Viser un départ 08h–09h (1h10 de vol) pour être à Seogwipo vers midi. Réserver tôt = moins cher. 1 bagage cabine souvent suffisant.'},
-   {id:'seedf_j2',url:'https://www.jejuair.net',status:'toreserve',created:Date.now(),airline:'Jeju Air / T\'way / Jin Air',destination:'Jeju (CJU) → Séoul Gimpo (GMP)',dates:'25 août — après-midi',price:'~30–40 €',notes:'Viser ~15h–16h (arrivée Séoul ~17h) pour profiter de Manjanggul/O\'Sulloc le matin.'},
-   {id:'seedf_k1',url:'https://www.letskorail.com',status:'toreserve',created:Date.now(),airline:'Korail — KTX',destination:'Séoul Yongsan → Jeonju',dates:'14 août — matin',price:'~26 €',notes:'Viser le départ ~08h30 (1h50 de trajet). Vente ~1 mois avant sur letskorail.com (compte à créer avant).'},
-   {id:'seedf_b1',url:'https://www.kobus.co.kr',status:'toreserve',created:Date.now(),airline:'Bus express (Kobus)',destination:'Jeonju → Gyeongju',dates:'15 août — matin',price:'~25 €',notes:'Viser ~09h30 · ~3 h via Daejeon. Peu de départs directs : vérifier les horaires la veille.'},
-   {id:'seedf_b2',url:'https://www.kobus.co.kr',status:'toreserve',created:Date.now(),airline:'Bus express',destination:'Gyeongju → Busan',dates:'17 août — matin',price:'~5 €',notes:'Viser ~09h00 · express ~1 h · départs fréquents, réservable sur place la veille.'},
-   {id:'seedf_k2',url:'https://www.letskorail.com',status:'toreserve',created:Date.now(),airline:'Korail — KTX',destination:'Busan → Séoul',dates:'20 août — matin',price:'~45 €',notes:'Viser ~09h30 (2h40) pour enchaîner Gangnam + baseball le soir. Réserver tôt (vendredi chargé).'}
+   {id:'seedf_j1',url:'https://www.jejuair.net',status:'booked',created:Date.now(),airline:'Jeju Air',destination:'Séoul Gimpo (GMP) → Jeju (CJU)',dates:'22 août — matin',price:'réservé',notes:'RÉSERVÉ. Vol intérieur : pas de passeport demandé à la résa, c\'est normal. Prends-le quand même à l\'aéroport. Être sur place ~1 h avant.'},
+   {id:'seedf_j2',url:'https://www.jejuair.net',status:'booked',created:Date.now(),airline:'Jeju Air',destination:'Jeju (CJU) → Séoul Gimpo (GMP)',dates:'25 août — après-midi',price:'réservé',notes:'RÉSERVÉ. ⚠️ Août = saison des typhons : vol le plus exposé du voyage. Marge OK avant la demi-finale du 28.'},
+   {id:'seedf_k1',url:'https://www.letskorail.com',status:'toreserve',created:Date.now(),airline:'Korail — KTX',destination:'Séoul Yongsan → Jeonju',dates:'14 août — ~08h30',price:'~26 €',notes:'1h50 de trajet. Vente ouverte (~1 mois avant). App Korail Talk (passer en anglais) ou letskorail.com ; si carte étrangère refusée → Klook/Trip.com.'},
+   {id:'seedf_b1',url:'https://www.kobus.co.kr',status:'toreserve',created:Date.now(),airline:'Kobus — bus express',destination:'Jeonju → Dongdaegu (동대구) → Gyeongju',dates:'15 août — ~09h00',price:'~14–23 000 ₩',notes:'⚠️ 15 août = FÊTE NATIONALE (Liberation Day). Le direct Jeonju→Gyeongju est un bus INTERURBAIN (bustago.or.kr, pas kobus) avec seulement ~4 départs/jour. Plan retenu : Jeonju → DONGDAEGU sur kobus (~3 h), puis Dongdaegu → Gyeongju (toutes les 30 min, ~55 min, guichet sur place). ⚠️ PAS Seodaegu ni Daegu Seobu. Arrivée Gyeongju ~13h30.'},
+   {id:'seedf_b2',url:'https://www.bustago.or.kr/newweb/en/index.do',status:'toreserve',created:Date.now(),airline:'Bus interurbain',destination:'Gyeongju → Busan',dates:'17 août — ~09h00',price:'~7 500–12 000 ₩',notes:'Toutes les 15–30 min (07h00→22h40), ~50 min. Pas besoin de réserver, même le 17 (férié de substitution). Arrivée Busan Central (Nopo, ligne 1). Si tu dors à Haeundae : bus direct Gyeongju → Haeundae (~1h17), terminal INTERURBAIN (sortie 2 du métro Haeundae).'},
+   {id:'seedf_k2',url:'https://www.letskorail.com',status:'booked',created:Date.now(),airline:'Korail — KTX',destination:'Busan → Séoul',dates:'20 août',price:'~45 €',notes:'RÉSERVÉ — arrivée Séoul 11h10. Consigne à bagages (T-money) à la gare si le check-in est à 15h.'},
+   {id:'seedf_t1',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink GLOBAL',destination:'⚾ LG Twins vs KT Wiz — Jamsil',dates:'20 août 18h30',price:'12 000–70 000 ₩',notes:'⚠️ OUVERTURE jeu. 13/8 à 11h00 (tu seras à Séoul). Version /global/en UNIQUEMENT (la coréenne exige un n° coréen + carte de résident). Compte par e-mail, carte étrangère OK, payer en 5 min. Côté 1re base = tribune LG. Retrait au Ticket Box du stade.'},
+   {id:'seedf_t2',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink Global / guichet',destination:'⚾ Lotte Giants — Stade Sajik (Busan)',dates:'18 ou 19 août',price:'~12 000 ₩',notes:'NOUVEAU. « Le plus grand karaoké du monde ». ⚠️ Vérifier le calendrier : Giants à domicile ? Pas de match le lundi (donc pas le 17). Vente ~7 j avant. Plan B : guichet du stade.'},
+   {id:'seedf_nol',url:'https://world.nol.com',status:'toreserve',created:Date.now(),airline:'NOL World',destination:'🏆 Billets LCK (LoL Park)',dates:'12, 21, 28 et 29 août',price:'~24–30 € / match',notes:'CRÉER LE COMPTE MAINTENANT. Vente ~48 h avant chaque match. ⚠️ La GRANDE FINALE peut se jouer hors de LoL Park (Goyang, Incheon…) — confirmer le lieu quand le calendrier tombe.'},
+   {id:'seedf_hal',url:'https://visithalla.jeju.go.kr',status:'toreserve',created:Date.now(),airline:'Parc national de Hallasan',destination:'🥾 Résa Hallasan (Seongpanak)',dates:'pour le 23 août',price:'Gratuit',notes:'⏰ RAPPEL 1er AOÛT AU RÉVEIL : les résas ouvrent le 1er du mois pour le mois suivant, quota journalier, part très vite.'},
+   {id:'seedf_huw',url:'https://www.royal.go.kr',status:'toreserve',created:Date.now(),airline:'Palais Changdeokgung',destination:'🌿 Jardin secret Huwon',dates:'pour le 11 août',price:'~8 €',notes:'⏰ À réserver VERS LE 5 AOÛT (6 j avant). Visite guidée uniquement, créneaux anglais limités. ⚠️ Le 11 (mardi) et pas le 10 : le palais ferme le lundi.'},
+   {id:'seedf_dmz',url:'https://www.klook.com',status:'booked',created:Date.now(),airline:'Tour guidé DMZ',destination:'🪖 DMZ — journée complète',dates:'27 août, 7h–16h',price:'~60 €',notes:'RÉSERVÉ. Pickup + dépose station Hongik Univ. sortie 3. ⚠️ PASSEPORT obligatoire. Petit-déj avant 7 h. Vérifier si le déjeuner est inclus.'},
+   {id:'seedf_sky',url:'https://www.klook.com',status:'toreserve',created:Date.now(),airline:'Klook / Trazy / Waug',destination:'🌆 Seoul Sky — Lotte World Tower',dates:'26 août ~18h15',price:'~31 000 ₩',notes:'Produit « Lotte World Tower SEOUL SKY Observatory » — PAS « Lotte World Adventure » (le parc). Billet standard (117-123e), pas le Fast Pass à 62 000 ₩. Billet date-libre = tu viens quand tu veux ce jour-là. Valable uniquement le 26.'},
+   {id:'seedf_ntw',url:'https://www.nseoultower.co.kr',status:'toreserve',created:Date.now(),airline:'N Seoul Tower',destination:'🌃 Observatoire Namsan — DE NUIT',dates:'9 août ~21h',price:'~21 000 ₩',notes:'Dimanche = fermeture 23h (dernière entrée 22h30). Téléphérique jusqu\'à 23h, depuis Myeongdong sortie 3. Billet observatoire ≠ téléphérique (2 achats). Trazy/Klook font des billets « open » ±7 j (utile si pluie).'},
+   {id:'seedf_cook',url:'https://www.klook.com',status:'toreserve',created:Date.now(),airline:'Klook / GetYourGuide',destination:'🍳 Cours de cuisine coréenne',dates:'26 août ~10h30',price:'~35 €',notes:'Petits groupes → réserver à l\'avance. Kimchi / tteokbokki / bibimbap.'},
+   {id:'seedf_esim',url:'https://www.ubigi.com',status:'toreserve',created:Date.now(),airline:'Ubigi',destination:'📱 eSIM 30 jours',dates:'avant le départ',price:'~60 €',notes:'Achetable maintenant, activation à l\'arrivée. ⚠️ Ne permet PAS la vérification d\'identité coréenne (d\'où Ticketlink Global).'},
+   {id:'seedf_ear',url:'https://www.e-arrivalcard.go.kr',status:'toreserve',created:Date.now(),airline:'e-Arrival Card',destination:'🛂 Déclaration d\'arrivée',dates:'à faire vers le 4-5 août',price:'Gratuit',notes:'Obligatoire, gratuite, dans les 72 h avant l\'arrivée — pas avant. K-ETA : rien à faire (Français exemptés jusqu\'au 31/12/2026).'}
   ];
 }
+
 function buildSeed(){
   const clone=x=>JSON.parse(JSON.stringify(x));
   return {
@@ -693,13 +725,28 @@ function normalize(s){
   else{
     const seedArr=airbnbSeed();const seedM={},valid={};
     seedArr.forEach(x=>{seedM[x.zone]=x;valid[x.zone]=1;});
-    s.links.airbnb=s.links.airbnb.filter(e=>!(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')&&!valid[e.zone]));
     s.links.airbnb.forEach(e=>{if(e&&e.zone==='jeju')e.zone='jeju1';});
-    s.links.airbnb.forEach(e=>{if(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')){const sd=seedM[e.zone];if(sd){e.title=sd.title;e.dates=sd.dates;e.notes=sd.notes;}}});
-    const present={};s.links.airbnb.forEach(e=>{if(e)present[e.zone]=1;});
-    seedArr.forEach(sd=>{if(!present[sd.zone])s.links.airbnb.push(sd);});
+    s.links.airbnb=s.links.airbnb.filter(e=>!(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')&&!valid[e.zone]));
+    if(s.seedAirbnbV!==4){
+      s.links.airbnb.forEach(e=>{const sd=e&&seedM[e.id];if(sd){e.title=sd.title;e.dates=sd.dates;e.notes=sd.notes;e.status='booked';if(!parseAmt(e.price))e.price=sd.price;}});
+      const present={};s.links.airbnb.forEach(e=>{if(e)present[e.zone]=1;});
+      seedArr.forEach(sd=>{if(!present[sd.zone])s.links.airbnb.push(sd);});
+      s.seedAirbnbV=4;
+    }else{
+      s.links.airbnb.forEach(e=>{if(e&&typeof e.id==='string'&&e.id.indexOf('seed_')===0&&(!e.url||e.url==='')){const sd=seedM[e.zone];if(sd){e.dates=sd.dates;}}});
+      const present={};s.links.airbnb.forEach(e=>{if(e)present[e.zone]=1;});
+      seedArr.forEach(sd=>{if(!present[sd.zone])s.links.airbnb.push(sd);});
+    }
   }
   if(!s.links.flights.length)s.links.flights=flightsSeed();
+  else if(s.seedFlightsV!==2){
+    const fs2=flightsSeed(),fm={};fs2.forEach(x=>fm[x.id]=x);
+    s.links.flights=s.links.flights.filter(e=>!(e&&typeof e.id==='string'&&e.id.indexOf('seedf_')===0&&!fm[e.id]));
+    s.links.flights.forEach(e=>{const sd=e&&fm[e.id];if(sd){e.airline=sd.airline;e.destination=sd.destination;e.dates=sd.dates;e.notes=sd.notes;e.url=sd.url;if(sd.status==='booked')e.status=sd.status;}});
+    const pr={};s.links.flights.forEach(e=>{if(e)pr[e.id]=1;});
+    fs2.forEach(sd=>{if(!pr[sd.id])s.links.flights.push(sd);});
+    s.seedFlightsV=2;
+  }
   s.budget=s.budget.filter(b=>b.id!=='airbnb_auto');
   s.budget.forEach(b=>{if(b.auto&&b.id!=='hotel')delete b.auto;});
   const hl=s.budget.find(b=>b.id==='hotel');if(hl)hl.auto='airbnb';
@@ -768,7 +815,7 @@ function renderDashboard(){
     <div class="tile"><div class="tv green">${pdone}/${items.length}</div><div class="tl">Préparatifs</div></div></div>`;
   function summary(cat){const arr=STATE.links[cat.id]||[];const by={};cat.statuses.forEach(s=>by[s[0]]=0);arr.forEach(e=>{by[e.status]=(by[e.status]||0)+1;});
     const chips=cat.statuses.map(s=>`<span class="chip s-${s[0]}">${by[s[0]]||0} · ${s[1]}</span>`).join('');
-    return `<div class="dcard" data-act="go" data-v="${cat.tab}"><div class="dcard-h">${cat.icon} ${cat.label} <span class="dcount">${arr.length}</span></div><div class="chips">${chips}</div><div class="dcard-go">Gérer ↗</div></div>`;}
+    return `<div class="dcard" data-act="go" data-v="${cat.tab}"><div class="dcard-h">${cat.icon} ${cat.plural||cat.label} <span class="dcount">${arr.length}</span></div><div class="chips">${chips}</div><div class="dcard-go">Gérer ↗</div></div>`;}
   const totalLinks=LINK_CATS.reduce((a,c)=>a+(STATE.links[c.id]||[]).length,0);
   el.innerHTML=`<div class="today-hero">${hero}</div>${tiles}
     <div class="section-h" style="margin-top:20px"><h2>Logements & transports</h2></div>
@@ -902,7 +949,7 @@ function linkCardHTML(cat,i){const e=STATE.links[cat.id][i];
     ${fields}
     <div class="lurl"><input class="lfield lurlin" type="url" inputmode="url" placeholder="Coller le lien https://…" data-cat="${cat.id}" data-i="${i}" data-k="url" value="${escA(e.url||'')}">${open}</div></div>`;}
 function renderLinkTab(cat){const arr=STATE.links[cat.id];const view='v-'+cat.tab;
-  const title=cat.id==='flights'?'Billets d\u2019avion':'Airbnb';
+  const title=cat.plural||cat.label;
   const emptyMsg=`<div class="empty">Aucun ${cat.label.toLowerCase()} pour l\u2019instant.<br>Ajoute le premier ci-dessous — tout se sauvegarde automatiquement.</div>`;
   let sub='',cards='';
   if(cat.id==='airbnb'){
@@ -940,7 +987,7 @@ function renderLinkResults(){const q=linkQuery.trim().toLowerCase();let html='';
     const matches=STATE.links[cat.id].map((e,i)=>({e,i})).filter(({e})=>{if(!q)return true;
       const hay=[e.url||'',statusLabel(cat,e.status)].concat(cat.fields.map(f=>e[f.k]||'')).join(' ').toLowerCase();return hay.includes(q);});
     count+=matches.length;
-    if(matches.length){html+=`<div class="grp-h">${cat.icon} ${cat.label==='Billet d\u2019avion'?'Billets d\u2019avion':'Airbnb'} · ${matches.length}</div>`+matches.map(({i})=>linkCardHTML(cat,i)).join('');}});
+    if(matches.length){html+=`<div class="grp-h">${cat.icon} ${cat.plural||cat.label} · ${matches.length}</div>`+matches.map(({i})=>linkCardHTML(cat,i)).join('');}});
   if(!count)html=`<div class="empty">${q?'Aucun résultat pour « '+esc(linkQuery)+' ».':'Aucun lien enregistré. Ajoute-en dans les onglets Airbnb et Vols.'}</div>`;
   document.getElementById('link-results').innerHTML=html;
   const c=document.getElementById('links-count');if(c)c.textContent=LINK_CATS.reduce((a,cat)=>a+STATE.links[cat.id].length,0)+' liens';}
