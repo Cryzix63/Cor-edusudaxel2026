@@ -236,28 +236,6 @@
   .save-flash{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--surface3);color:var(--accent);font-size:11px;padding:7px 14px;border-radius:20px;border:1px solid var(--border2);opacity:0;transition:opacity .3s;pointer-events:none;z-index:60;}
   .save-flash.show{opacity:1;}
 
-/* ===== Mode visiteur (lecture seule) ===== */
-body.viewer #editbtn,body.viewer .edithint,body.viewer .tools,body.viewer .adder,body.viewer .addbtn,
-body.viewer [data-act^="add-"],body.viewer [data-act^="del-"],body.viewer .lkdel,body.viewer #pubpanel{display:none !important;}
-body.viewer .check,body.viewer .pbox{pointer-events:none;opacity:.85;}
-.viewerbar{max-width:680px;margin:0 auto;padding:7px 14px;font-size:11.5px;color:var(--muted);
- background:rgba(201,162,75,.08);border-bottom:1px solid var(--border);}
-.viewerbar b{color:var(--accent);font-weight:600;}
-/* ===== Panneau publication (admin) ===== */
-#pubpanel{margin-top:14px;padding:13px;border:1px solid var(--accent);border-radius:14px;background:rgba(201,162,75,.05);}
-#pubpanel .pub-h{font-weight:700;color:var(--accent);margin-bottom:8px;}
-#pubpanel .pub-row{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0;}
-#pubpanel .tbtn{flex:1;min-width:150px;}
-#pubpanel .lfield{width:100%;margin-top:6px;}
-#pubpanel label{font-size:12.5px;color:var(--text);display:flex;gap:7px;align-items:center;}
-#pub-msg{font-size:12px;margin-top:8px;color:var(--muted);word-break:break-word;}
-#pub-msg.ok{color:var(--green);} #pub-msg.err{color:#e58a7a;}
-#pub-cfg-toggle{font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:8px;display:inline-block;}
-/* ===== Confort grand écran ===== */
-@media(min-width:920px){
-  .wrap,.viewerbar{max-width:820px;}
-  .tabbar{justify-content:center;}
-}
 </style>
 </head>
 <body>
@@ -306,25 +284,6 @@ body.viewer .check,body.viewer .pbox{pointer-events:none;opacity:.85;}
       <button class="tbtn danger" id="reset-btn">↺ Revenir au contenu d'origine</button>
       <input type="file" id="import-file" accept="application/json,.json" style="display:none">
     </div>
-    <div id="pubpanel" style="display:none">
-      <div class="pub-h">📤 Publication pour la famille (mode admin)</div>
-      <label><input type="checkbox" id="pub-budget"> Inclure le budget et les prix des logements</label>
-      <div class="pub-row">
-        <button class="tbtn" id="pub-github">📤 Publier sur GitHub</button>
-        <button class="tbtn" id="pub-dl">⬇️ Télécharger data.json</button>
-        <button class="tbtn" id="pub-copy">📋 Copier le JSON</button>
-      </div>
-      <div id="pub-msg"></div>
-      <span id="pub-cfg-toggle">⚙️ Configuration GitHub (une seule fois)</span>
-      <div id="pub-cfg" style="display:none">
-        <input class="lfield" id="pubc-owner" placeholder="Utilisateur GitHub (ex : axel123)">
-        <input class="lfield" id="pubc-repo" placeholder="Nom du dépôt (ex : voyage-coree)">
-        <input class="lfield" id="pubc-branch" placeholder="Branche (main par défaut)">
-        <input class="lfield" id="pubc-token" type="password" placeholder="Token GitHub (fine-grained, Contents : write)">
-        <button class="tbtn" id="pubc-save" style="margin-top:7px">💾 Enregistrer la configuration</button>
-      </div>
-    </div>
-    <div class="save-hint">Tout est enregistré automatiquement sur cet appareil (IndexedDB + localStorage) et conservé entre les sessions. « Sauvegarder tout » crée un fichier de secours transférable.</div>
   </div>
 
   <div class="view" id="v-info">
@@ -797,52 +756,6 @@ function normalize(s){
 }
 
 /* ===================== ÉTAT ===================== */
-/* ===== Mode admin / visiteur ===== */
-const _qs=new URLSearchParams(location.search);
-if(_qs.get('admin')==='1'){try{localStorage.setItem('coree_admin','1');}catch(e){}}
-if(_qs.get('admin')==='0'){try{localStorage.removeItem('coree_admin');}catch(e){}}
-let ADMIN=false;try{ADMIN=localStorage.getItem('coree_admin')==='1';}catch(e){}
-const VIEWER=!ADMIN;
-
-function pubCfg(){try{return JSON.parse(localStorage.getItem('coree_pub_cfg')||'{}');}catch(e){return{};}}
-function savePubCfg(c){try{localStorage.setItem('coree_pub_cfg',JSON.stringify(c));}catch(e){}}
-function publishPayload(includeBudget){
-  const c=JSON.parse(JSON.stringify(STATE));
-  delete c.seedAirbnbV;delete c.seedFlightsV;
-  c.publishedAt=new Date().toISOString();
-  if(!includeBudget){
-    c.noBudget=true;delete c.budget;
-    ['airbnb','flights'].forEach(k=>{(c.links&&c.links[k]||[]).forEach(e=>{if(e)delete e.price;});});
-  }
-  return JSON.stringify(c);
-}
-function b64u(s){return btoa(unescape(encodeURIComponent(s)));}
-async function publishToGitHub(json,msgEl){
-  const c=pubCfg();
-  if(!c.owner||!c.repo||!c.token){msgEl.className='err';msgEl.textContent='Renseigne d\u2019abord la configuration GitHub (utilisateur, d\u00e9p\u00f4t, token) ci-dessous.';return;}
-  const br=c.branch||'main';
-  const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
-  const H={'Authorization':'Bearer '+c.token,'Accept':'application/vnd.github+json'};
-  msgEl.className='';msgEl.textContent='Publication en cours\u2026';
-  try{
-    let sha=null;
-    const g=await fetch(api+'?ref='+encodeURIComponent(br),{headers:H});
-    if(g.status===200){sha=(await g.json()).sha;}
-    const body={message:'Carnet Cor\u00e9e \u2014 mise \u00e0 jour '+new Date().toLocaleString('fr-FR'),content:b64u(json),branch:br};
-    if(sha)body.sha=sha;
-    const p=await fetch(api,{method:'PUT',headers:H,body:JSON.stringify(body)});
-    if(p.ok){msgEl.className='ok';msgEl.textContent='\u2705 Publi\u00e9 ! Ta famille verra la mise \u00e0 jour dans ~1 minute (rafra\u00eechir la page).';}
-    else if(p.status===401){msgEl.className='err';msgEl.textContent='\u274c Token refus\u00e9 (401). V\u00e9rifie qu\u2019il est valide et autoris\u00e9 en \u00e9criture (Contents) sur ce d\u00e9p\u00f4t.';}
-    else if(p.status===404){msgEl.className='err';msgEl.textContent='\u274c D\u00e9p\u00f4t ou branche introuvable (404). V\u00e9rifie utilisateur / d\u00e9p\u00f4t / branche.';}
-    else{msgEl.className='err';msgEl.textContent='\u274c Erreur GitHub '+p.status+'.';}
-  }catch(e){msgEl.className='err';msgEl.textContent='\u274c R\u00e9seau indisponible ou requ\u00eate bloqu\u00e9e ('+e.message+').';}
-}
-function applyViewerLocks(){
-  if(!VIEWER)return;
-  document.body.classList.add('viewer');
-  document.querySelectorAll('input,select,textarea').forEach(el=>{if(el.id!=='link-search')el.disabled=true;});
-}
-
 let STATE=buildSeed();
 let EDIT=false, curView='dash', curFilter='all', linkQuery='', airbnbZone='all';
 let openDays=new Set();
@@ -850,7 +763,7 @@ const TRIP_START=new Date('2026-08-07T00:00:00');
 const TRIP_END=new Date('2026-09-01T00:00:00');
 
 let saveTimer=null;
-function saveState(){if(VIEWER)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{Store.set(KEY,JSON.stringify(STATE));flashSaved();},300);}
+function saveState(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{Store.set(KEY,JSON.stringify(STATE));flashSaved();},300);}
 let flashTimer=null;
 function flashSaved(){const f=document.getElementById('save-flash');f.classList.add('show');clearTimeout(flashTimer);flashTimer=setTimeout(()=>f.classList.remove('show'),900);}
 
@@ -1091,7 +1004,6 @@ function download(blob,name){const url=URL.createObjectURL(blob);const a=documen
 function newSlot(){return {t:'00h00',ty:'culture',n:'Nouvelle étape',d:'Détails…',p:'',pt:'',done:false};}
 function newDay(){return {id:'J?',phase:(curFilter!=='all'?curFilter:'seoul1'),date:'2026-08-10',dateEnd:'',title:'Nouvelle journée',sub:'',total:'',slots:[]};}
 function doAct(act,el){
-  if(VIEWER&&act!=='go')return;
   const ds=el?el.dataset:{};const i=ds.i!=null?+ds.i:undefined,j=ds.j!=null?+ds.j:undefined;
   if(act==='go'){switchTab(ds.v);return;}
   switch(act){
@@ -1125,11 +1037,11 @@ document.addEventListener('click',e=>{
   const ib=e.target.closest('.slot-ib');
   if(ib){const sl=ib.closest('.slot');const p=sl&&sl.querySelector('.slot-info');if(p){p.classList.toggle('open');ib.classList.toggle('on');}return;}
   const chk=e.target.closest('.check');
-  if(chk){if(VIEWER)return;const slot=chk.closest('.slot');const di=+slot.dataset.di,si=+slot.dataset.si;const s=STATE.days[di].slots[si];s.done=!s.done;slot.classList.toggle('done',s.done);
+  if(chk){const slot=chk.closest('.slot');const di=+slot.dataset.di,si=+slot.dataset.si;const s=STATE.days[di].slots[si];s.done=!s.done;slot.classList.toggle('done',s.done);
     const card=slot.closest('.day-card');const lbl=card&&card.querySelector('.day-rprog');if(lbl){const pr=dayProgress(STATE.days[di]);lbl.textContent=`${pr.done}/${pr.total} fait${pr.done>1?'s':''}`;}
     saveState();return;}
   const pb=e.target.closest('.pbox');
-  if(pb){if(VIEWER)return;const it=pb.closest('.pitem');const pi=+it.dataset.pi;STATE.prep[pi].done=!STATE.prep[pi].done;it.classList.toggle('done',STATE.prep[pi].done);saveState();updatePrepMeta();return;}
+  if(pb){const it=pb.closest('.pitem');const pi=+it.dataset.pi;STATE.prep[pi].done=!STATE.prep[pi].done;it.classList.toggle('done',STATE.prep[pi].done);saveState();updatePrepMeta();return;}
   const head=e.target.closest('.day-head');
   if(head){if(EDIT&&e.target.closest('.ed,input,select,.delx'))return;const card=head.closest('.day-card');const id=card.dataset.day;if(openDays.has(id))openDays.delete(id);else openDays.add(id);card.classList.toggle('open');return;}
 });
@@ -1152,7 +1064,7 @@ document.addEventListener('change',e=>{
 
 /* ===================== NAV / TABS ===================== */
 function buildTabbar(){const tb=document.getElementById('tabbar');
-  tb.innerHTML=TABS.filter(t=>!(VIEWER&&(t.id==='links'||(t.id==='budget'&&STATE.noBudget)))).map(t=>`<button class="tabpill${t.id===curView?' active':''}" data-v="${t.id}"><span>${t.ic}</span>${t.label}</button>`).join('');
+  tb.innerHTML=TABS.map(t=>`<button class="tabpill${t.id===curView?' active':''}" data-v="${t.id}"><span>${t.ic}</span>${t.label}</button>`).join('');
   tb.querySelectorAll('.tabpill').forEach(b=>b.onclick=()=>switchTab(b.dataset.v));}
 function switchTab(id){curView=id;
   document.querySelectorAll('.tabpill').forEach(p=>p.classList.toggle('active',p.dataset.v===id));
@@ -1165,7 +1077,7 @@ function switchTab(id){curView=id;
 }
 
 /* ===================== ÉDITION TOGGLE ===================== */
-document.getElementById('editbtn').addEventListener('click',()=>{if(VIEWER)return;EDIT=!EDIT;document.body.classList.toggle('editing',EDIT);
+document.getElementById('editbtn').addEventListener('click',()=>{EDIT=!EDIT;document.body.classList.toggle('editing',EDIT);
   document.getElementById('editbtn-ic').textContent=EDIT?'✓':'✏️';document.getElementById('editbtn-tx').textContent=EDIT?'Terminé':'Modifier';renderAll();});
 
 /* ===================== OUTILS DONNÉES ===================== */
@@ -1185,42 +1097,7 @@ function renderAll(){REG={};eidc=0;syncAirbnbBudget();
 }
 
 /* ===================== INIT ===================== */
-/* ===== renderAll + verrous visiteur ===== */
-const __renderAll=renderAll;
-renderAll=function(){__renderAll();applyViewerLocks();};
-
-function wirePublish(){
-  const p=document.getElementById('pubpanel');if(!p)return;
-  if(ADMIN)p.style.display='block';
-  const c=pubCfg();
-  const $=id=>document.getElementById(id);
-  $('pubc-owner').value=c.owner||'';$('pubc-repo').value=c.repo||'';$('pubc-branch').value=c.branch||'';
-  if(c.token)$('pubc-token').placeholder='Token enregistré ✓ (retape pour changer)';
-  $('pub-cfg-toggle').onclick=()=>{const d=$('pub-cfg');d.style.display=d.style.display==='none'?'block':'none';};
-  $('pubc-save').onclick=()=>{const old=pubCfg();savePubCfg({owner:$('pubc-owner').value.trim(),repo:$('pubc-repo').value.trim(),branch:$('pubc-branch').value.trim()||'main',token:$('pubc-token').value.trim()||old.token||''});$('pub-msg').className='ok';$('pub-msg').textContent='Configuration enregistrée sur cet appareil (jamais publiée).';};
-  $('pub-github').onclick=()=>publishToGitHub(publishPayload($('pub-budget').checked),$('pub-msg'));
-  $('pub-dl').onclick=()=>{download(new Blob([publishPayload($('pub-budget').checked)],{type:'application/json'}),'data.json');$('pub-msg').className='ok';$('pub-msg').textContent='data.json téléchargé — dépose-le sur GitHub à côté de index.html.';};
-  $('pub-copy').onclick=async()=>{try{await navigator.clipboard.writeText(publishPayload($('pub-budget').checked));$('pub-msg').className='ok';$('pub-msg').textContent='JSON copié — colle-le dans GitHub (Add file → Create new file → data.json).';}catch(e){$('pub-msg').className='err';$('pub-msg').textContent='Copie impossible ici — utilise « Télécharger ».';}};
-}
-
 (async function init(){
-  if(VIEWER){
-    let shown=false;
-    try{
-      const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});
-      if(r.ok){const pub=await r.json();if(pub&&pub.days){STATE=normalize(pub);shown=true;}}
-    }catch(e){}
-    if(!shown){
-      try{const raw=await Store.get(KEY);if(raw){const o=JSON.parse(raw);if(o&&o.days){STATE=normalize(o);shown=true;}}}catch(e){}
-      if(!shown)STATE=buildSeed();
-    }
-    const bar=document.createElement('div');bar.className='viewerbar';
-    const d=STATE.publishedAt?new Date(STATE.publishedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):null;
-    bar.innerHTML='👀 <b>Carnet de voyage d\u2019Axel — Corée 2026</b> · consultation seule'+(d?' · mis à jour le '+d:'');
-    document.body.insertBefore(bar,document.body.firstChild);
-    buildTabbar();switchTab('dash');renderAll();
-    return;
-  }
   buildTabbar();
   let loaded=null;
   try{const raw=await Store.get(KEY);if(raw)loaded=JSON.parse(raw);}catch(e){}
@@ -1229,7 +1106,6 @@ function wirePublish(){
   }
   STATE=(loaded&&loaded.days)?normalize(loaded):buildSeed();
   Store.set(KEY,JSON.stringify(STATE));
-  wirePublish();
   switchTab('dash');
   renderAll();
 })();
