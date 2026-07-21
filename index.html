@@ -235,6 +235,29 @@
 
   .save-flash{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--surface3);color:var(--accent);font-size:11px;padding:7px 14px;border-radius:20px;border:1px solid var(--border2);opacity:0;transition:opacity .3s;pointer-events:none;z-index:60;}
   .save-flash.show{opacity:1;}
+
+/* ===== Mode visiteur (lecture seule) ===== */
+body.viewer #editbtn,body.viewer .edithint,body.viewer .tools,body.viewer .adder,body.viewer .addbtn,
+body.viewer [data-act^="add-"],body.viewer [data-act^="del-"],body.viewer .lkdel,body.viewer #pubpanel{display:none !important;}
+body.viewer .check,body.viewer .pbox{pointer-events:none;opacity:.85;}
+.viewerbar{max-width:680px;margin:0 auto;padding:7px 14px;font-size:11.5px;color:var(--muted);
+ background:rgba(201,162,75,.08);border-bottom:1px solid var(--border);}
+.viewerbar b{color:var(--accent);font-weight:600;}
+/* ===== Panneau publication (admin) ===== */
+#pubpanel{margin-top:14px;padding:13px;border:1px solid var(--accent);border-radius:14px;background:rgba(201,162,75,.05);}
+#pubpanel .pub-h{font-weight:700;color:var(--accent);margin-bottom:8px;}
+#pubpanel .pub-row{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0;}
+#pubpanel .tbtn{flex:1;min-width:150px;}
+#pubpanel .lfield{width:100%;margin-top:6px;}
+#pubpanel label{font-size:12.5px;color:var(--text);display:flex;gap:7px;align-items:center;}
+#pub-msg{font-size:12px;margin-top:8px;color:var(--muted);word-break:break-word;}
+#pub-msg.ok{color:var(--green);} #pub-msg.err{color:#e58a7a;}
+#pub-cfg-toggle{font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:8px;display:inline-block;}
+/* ===== Confort grand écran ===== */
+@media(min-width:920px){
+  .wrap,.viewerbar{max-width:820px;}
+  .tabbar{justify-content:center;}
+}
 </style>
 </head>
 <body>
@@ -282,6 +305,24 @@
       <button class="tbtn" id="import-btn">⬆️ Importer une sauvegarde (JSON)</button>
       <button class="tbtn danger" id="reset-btn">↺ Revenir au contenu d'origine</button>
       <input type="file" id="import-file" accept="application/json,.json" style="display:none">
+    </div>
+    <div id="pubpanel" style="display:none">
+      <div class="pub-h">📤 Publication pour la famille (mode admin)</div>
+      <label><input type="checkbox" id="pub-budget"> Inclure le budget et les prix des logements</label>
+      <div class="pub-row">
+        <button class="tbtn" id="pub-github">📤 Publier sur GitHub</button>
+        <button class="tbtn" id="pub-dl">⬇️ Télécharger data.json</button>
+        <button class="tbtn" id="pub-copy">📋 Copier le JSON</button>
+      </div>
+      <div id="pub-msg"></div>
+      <span id="pub-cfg-toggle">⚙️ Configuration GitHub (une seule fois)</span>
+      <div id="pub-cfg" style="display:none">
+        <input class="lfield" id="pubc-owner" placeholder="Utilisateur GitHub (ex : axel123)">
+        <input class="lfield" id="pubc-repo" placeholder="Nom du dépôt (ex : voyage-coree)">
+        <input class="lfield" id="pubc-branch" placeholder="Branche (main par défaut)">
+        <input class="lfield" id="pubc-token" type="password" placeholder="Token GitHub (fine-grained, Contents : write)">
+        <button class="tbtn" id="pubc-save" style="margin-top:7px">💾 Enregistrer la configuration</button>
+      </div>
     </div>
     <div class="save-hint">Tout est enregistré automatiquement sur cet appareil (IndexedDB + localStorage) et conservé entre les sessions. « Sauvegarder tout » crée un fichier de secours transférable.</div>
   </div>
@@ -348,7 +389,7 @@ const Store=(()=>{
     }
   };
 })();
-const KEY='coree_state_v13', OLD_KEY='coree_state_v12';
+const KEY='coree_state_v14', OLD_KEY='coree_state_v13';
 
 /* ===================== HELPERS ===================== */
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -399,7 +440,8 @@ const DAYS=[
   {t:'11h35',ty:'travel',n:'Arrivée ICN — Immigration & eSIM',d:'e-Arrival Card déjà faite · <b>Activer l\'eSIM Ubigi</b> · Carte T-money',p:'SIM ~60 €',pt:''},
   {t:'13h30',ty:'travel',n:'AREX Express → Hongdae',d:'Direct · ~50 min · Check-in',p:'~11 €',pt:'transport'},
   {t:'15h00',ty:'food',n:'Déjeuner tardif + repos',d:'Kimbap/ramyeon · Micro-sieste anti jet lag (+7 h)',p:'~5 €',pt:''},
-  {t:'18h30',ty:'food',n:'🍗 Chimaek de bienvenue',d:'<b>(11)</b> Poulet frit + bière à Hongdae',p:'~12 €',pt:''},
+  {t:'17h00',ty:'lol',n:'🔥 OPTION FOLLE — T1 vs Hanwha Life (LoL Park)',d:'<b>Le choc de l\'année le jour de ton arrivée</b> : T1 face à Zeus & Gumayusi (ex-T1). Vente NOL World ~48h avant (donc <b>depuis la France le ~6/8</b>) · part en ~1 minute · jetlag à assumer. Si raté : c\'est diffusé partout, chimaek devant l\'écran.',p:'~24 €',pt:''},
+  {t:'18h30',ty:'food',n:'🍗 Chimaek de bienvenue',d:'<b>(11)</b> Poulet frit + bière à Hongdae · devant T1 vs HLE si pas de billet',p:'~12 €',pt:''},
   {t:'20h30',ty:'culture',n:'🕹️ Arcades & vie nocturne Hongdae',d:'<b>(35)</b> Claw machines, rythm games · <b>(37)</b> rues animées, street performers',p:'~8 €',pt:''}
 ]},
 {id:'J2',phase:'seoul1',date:'2026-08-09',title:'Palais, hanbok & 🌃 N Tower de nuit',sub:'Dimanche 9 août',total:'~110 €',slots:[
@@ -430,15 +472,16 @@ const DAYS=[
   {t:'12h30',ty:'food',n:'Déjeuner — Myeongdong Kyoja',d:'Kalguksu depuis 1966',p:'~8 €',pt:''},
   {t:'14h00',ty:'culture',n:'💿 Disquaires & figurines',d:'<b>(21)</b> Vinyles, figurines, goodies · Myeongdong/Jongno',p:'~20 €',pt:''},
   {t:'16h15',ty:'lol',n:'Arrivée LoL Park — fan zone',d:'45 min avant · bornes gratuites, photos · Gran Seoul, sortie 1 de Jonggak',p:'—',pt:'free'},
-  {t:'17h00',ty:'lol',n:'🏆 MATCH LCK — LoL Park (CHZZK)',d:'<b>(16)</b> Arène 450 places · bâtons lumineux · billet via NOL World ~48h avant',p:'~24 €',pt:''},
-  {t:'20h30',ty:'food',n:'🍢 After-match — Tteokbokki pojangmacha',d:'<b>(12)</b> Tente de rue : tteokbokki, soondae, soju',p:'~9 €',pt:''},
-  {t:'22h00',ty:'culture',n:'🎤 Noraebang (karaoké)',d:'<b>(36)</b> Salon privé pour finir la soirée · box solo possibles',p:'~8 €',pt:''}
+  {t:'17h00',ty:'lol',n:'🏆 LCK — match de 17h (affiche à confirmer)',d:'<b>(16)</b> Arène 450 places · bâtons lumineux · billets NOL World ~48h avant (le 10/8, tu seras à Séoul)',p:'~24 €',pt:''},
+  {t:'19h00',ty:'lol',n:'🏆 LCK — KT Rolster vs Dplus KIA (19h)',d:'<b>Calendrier officiel</b> · KT = leader invaincu des Rounds 1-2 · fin ~21h30-22h',p:'~24 €',pt:''},
+  {t:'22h00',ty:'food',n:'🍢 After-match — Tteokbokki pojangmacha',d:'<b>(12)</b> Tente de rue : tteokbokki, soondae, soju · noraebang <b>(36)</b> une autre fois si trop tard',p:'~9 €',pt:''}
 ]},
 {id:'J6',phase:'seoul1',date:'2026-08-13',title:'Bukhansan & détente',sub:'Jeudi 13 août',total:'~55 €',slots:[
   {t:'07h00',ty:'nature',n:'🥾 Randonnée Bukhansan (demi-journée)',d:'<b>(30)</b> Sommet Baegundae · vues sur Séoul · parc national',p:'~2 €',pt:''},
   {t:'13h00',ty:'food',n:'Déjeuner — Sundubu Jjigae',d:'Tofu soyeux épicé + œuf',p:'~8 €',pt:''},
-  {t:'15h00',ty:'nature',n:'🐾 Café animaux + 🚲 vélo Han',d:'<b>(33)</b> Café à chats/ratons · <b>(31)</b> vélo le long du Han si envie',p:'~10 €',pt:''},
-  {t:'20h00',ty:'sleep',n:'🛁 Jjimjilbang — Dragon Hill Spa',d:'<b>(32)</b> Bains et saunas · apporter un maillot',p:'~10 €',pt:''}
+  {t:'15h00',ty:'nature',n:'🐾 Café animaux + repos',d:'<b>(33)</b> Café à chats/ratons · <b>(31)</b> vélo Han une autre fois',p:'~10 €',pt:''},
+  {t:'19h00',ty:'lol',n:'🔥 LCK — Gen.G vs Hanwha Life (19h) — LE CHOC',d:'<b>Calendrier officiel</b> : les 2 cadors s\'affrontent, et tu es libre ce soir-là ! Billets NOL World ~48h avant (le 11/8) · 17h : DRX vs FEARX si tu veux la double session · ⚠️ billets LG Twins ouverts le matin même à 11h',p:'~24 €',pt:''},
+  {t:'22h00',ty:'sleep',n:'🛁 Jjimjilbang — Dragon Hill Spa (ou après-match léger)',d:'<b>(32)</b> Bains et saunas ouverts 24h · parfait après Bukhansan + le match',p:'~10 €',pt:''}
 ]},
 {id:'J7',phase:'jeonju',date:'2026-08-14',title:'Séoul → Jeonju — Hanok & gastronomie',sub:'Vendredi 14 août',total:'~110 €',slots:[
   {t:'08h30',ty:'travel',n:'🚅 KTX Séoul Yongsan → Jeonju',d:'1h50 · réserver sur Korail · checkout Séoul I',p:'~26 €',pt:'transport'},
@@ -500,7 +543,7 @@ const DAYS=[
   {t:'13h00',ty:'food',n:'Déjeuner Itaewon — Doenjang Jjigae',d:'Soupe de soja fermenté',p:'~7 €',pt:''},
   {t:'14h00',ty:'culture',n:'Itaewon / Hannam',d:'<b>(41)</b> Quartier international : concept stores, cafés · 2 stations du War Memorial',p:'~15 €',pt:''},
   {t:'16h15',ty:'lol',n:'Arrivée LoL Park — fan zone',d:'45 min avant · préparer aussi le sac pour Jeju (vol demain 08h30)',p:'—',pt:'free'},
-  {t:'17h00',ty:'lol',n:'🏆 MATCH PLAYOFF — Bo5',d:'<b>(16)</b> Ambiance électrique · 3–4 h',p:'~24 €',pt:''},
+  {t:'17h00',ty:'lol',n:'🏆 LCK — session du vendredi 21 (affiche à confirmer)',d:'<b>(16)</b> Saison régulière Rounds 3-4 (les playoffs commencent le 29) · matchs 17h & 19h · vérifier l\'affiche sur lolesports.com · billets NOL World ~48h avant (le 19/8, depuis Busan)',p:'~24 €',pt:''},
   {t:'21h30',ty:'food',n:'After-match — Pojangmacha',d:'Tteokbokki, soondae, soju · au lit tôt, vol demain matin',p:'~9 €',pt:''}
 ]},
 {id:'J15',phase:'jeju',date:'2026-08-22',title:'Séoul → Jeju — Sud de Seogwipo (sans voiture)',sub:'Samedi 22 août',total:'~95 €',slots:[
@@ -548,17 +591,17 @@ const DAYS=[
   {t:'17h30',ty:'sleep',n:'Douche / repos',d:'Après 9 h de bus et de DMZ, c\'est mérité',p:'—',pt:'free'},
   {t:'19h30',ty:'food',n:'🍲 Dîner — Hanjeongsik',d:'Festin royal, 20+ petits plats · l\'expérience traditionnelle (Insadong/Jongno)',p:'~35 €',pt:''}
 ]},
-{id:'J21',phase:'seoul3',date:'2026-08-28',title:'Demi-finale LCK + souvenirs',sub:'Vendredi 28 août — 🏆',total:'~90 €',slots:[
+{id:'J21',phase:'seoul3',date:'2026-08-28',title:'Souvenirs, skincare & LCK (Play-In ?)',sub:'Vendredi 28 août',total:'~90 €',slots:[
   {t:'11h00',ty:'lol',n:'🛍️ Riot Store + souvenirs',d:'Derniers achats officiels · jerseys, goodies',p:'~50 €',pt:''},
   {t:'13h30',ty:'food',n:'Déjeuner — Kimchi Jjigae',d:'La soupe emblématique',p:'~7 €',pt:''},
-  {t:'17h00',ty:'lol',n:'🏆 MATCH LCK — Demi-finale',d:'<b>(16)</b> Selon le calendrier des Playoffs · LoL Park',p:'~24 €',pt:''},
+  {t:'17h00',ty:'lol',n:'🏆 LCK — Play-In probable (à confirmer)',d:'<b>(16)</b> Fin de saison régulière / Play-In vers ces dates (4 équipes pour 2 places en playoffs) · calendrier exact pas encore publié → vérifier lolesports.com · sinon soirée libre à Hongdae',p:'~24 €',pt:''},
   {t:'20h30',ty:'food',n:'After-match — Pojangmacha',d:'Soondae, odeng, soju',p:'~9 €',pt:''}
 ]},
-{id:'J22',phase:'seoul3',date:'2026-08-29',title:'FINALE LCK & dîner de célébration',sub:'Samedi 29 août — 🏆 Finale',total:'~95 €',slots:[
+{id:'J22',phase:'seoul3',date:'2026-08-29',title:'PLAYOFFS LCK (UB Round 1) & dîner final',sub:'Samedi 29 août — 🏆',total:'~95 €',slots:[
   {t:'10h30',ty:'culture',n:'Myeongdong — souvenirs & ginseng',d:'Derniers cadeaux · ginseng rouge, thés',p:'~30 €',pt:''},
   {t:'13h00',ty:'food',n:'Déjeuner — Bibimbap',d:'Un classique avant le grand soir',p:'~8 €',pt:''},
-  {t:'16h00',ty:'lol',n:'🏆 FINALE LCK',d:'<b>(16)</b> Le clou du voyage · foule en délire, bâtons lumineux',p:'~30 €',pt:''},
-  {t:'20h00',ty:'food',n:'🥩 Dîner de célébration — BBQ premium',d:'Hanwoo (bœuf coréen) haut de gamme pour fêter ça',p:'~30 €',pt:''}
+  {t:'16h15',ty:'lol',n:'🏆 PLAYOFFS LCK — Upper Bracket Round 1 (17h)',d:'<b>Calendrier officiel : ouverture des playoffs le 29/8 à 17h</b> · Bo5 entre cadors du groupe Legend · billets NOL World ~48h avant (le 27/8, pendant la DMZ → alarme) · lieu LoL Park à confirmer · ℹ️ la grande finale se joue le 13 sept. au KSPO Dome, après ton départ — ce Bo5 d\'ouverture est ton apothéose, et c\'est un vrai gros match',p:'~24-30 €',pt:''},
+  {t:'21h00',ty:'food',n:'🥩 Dîner de célébration — BBQ premium',d:'Hanwoo (bœuf coréen) haut de gamme pour fêter le dernier soir',p:'~30 €',pt:''}
 ]},
 {id:'J23',phase:'seoul3',date:'2026-08-30',title:'Départ Séoul → Genève — 안녕히 계세요 !',sub:'Dimanche 30 août',total:'~40 €',slots:[
   {t:'08h30',ty:'food',n:'Matinée détente + derniers achats',d:'Dernier petit-déj coréen · ramyeon en duty free · checkout',p:'~12 €',pt:''},
@@ -681,7 +724,7 @@ function flightsSeed(){
    {id:'seedf_k2',url:'https://www.letskorail.com',status:'booked',created:Date.now(),airline:'Korail — KTX',destination:'Busan → Séoul',dates:'20 août',price:'~45 €',notes:'RÉSERVÉ — arrivée Séoul 11h10. Consigne à bagages (T-money) à la gare si le check-in est à 15h.'},
    {id:'seedf_t1',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink GLOBAL',destination:'⚾ LG Twins vs KT Wiz — Jamsil',dates:'20 août 18h30',price:'12 000–70 000 ₩',notes:'⚠️ OUVERTURE jeu. 13/8 à 11h00 (tu seras à Séoul). Version /global/en UNIQUEMENT (la coréenne exige un n° coréen + carte de résident). Compte par e-mail, carte étrangère OK, payer en 5 min. Côté 1re base = tribune LG. Retrait au Ticket Box du stade.'},
    {id:'seedf_t2',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink Global / guichet',destination:'⚾ Lotte Giants — Stade Sajik (Busan)',dates:'18 ou 19 août',price:'~12 000 ₩',notes:'NOUVEAU. « Le plus grand karaoké du monde ». ⚠️ Vérifier le calendrier : Giants à domicile ? Pas de match le lundi (donc pas le 17). Vente ~7 j avant. Plan B : guichet du stade.'},
-   {id:'seedf_nol',url:'https://world.nol.com',status:'toreserve',created:Date.now(),airline:'NOL World',destination:'🏆 Billets LCK (LoL Park)',dates:'12, 21, 28 et 29 août',price:'~24–30 € / match',notes:'CRÉER LE COMPTE MAINTENANT. Vente ~48 h avant chaque match. ⚠️ La GRANDE FINALE peut se jouer hors de LoL Park (Goyang, Incheon…) — confirmer le lieu quand le calendrier tombe.'},
+   {id:'seedf_nol',url:'https://world.nol.com',status:'toreserve',created:Date.now(),airline:'NOL World',destination:'🏆 Billets LCK (LoL Park)',dates:'12, 13, 21, (28) et 29 août',price:'~24–30 € / match',notes:'CALENDRIER OFFICIEL — tes sessions possibles : 12/8 (19h KT-Dplus), 13/8 (19h Gen.G-HLE 🔥 + 17h DRX-FEARX), 21/8 (affiche TBC), 28/8 (Play-In TBC), 29/8 (PLAYOFFS UB R1 17h). Vente ~48h avant, part en ~1 min. Option jour d\'arrivée : 8/8 17h T1 vs HLE (acheter depuis la France le ~6/8). ℹ️ T1 Home Ground au KSPO Dome du 14 au 16/8 (tu es à Jeonju/Gyeongju) · grande finale 13 sept. au KSPO (après ton départ).'},
    {id:'seedf_hal',url:'https://visithalla.jeju.go.kr',status:'toreserve',created:Date.now(),airline:'Parc national de Hallasan',destination:'🥾 Résa Hallasan (Seongpanak)',dates:'pour le 23 août',price:'Gratuit',notes:'⏰ RAPPEL 1er AOÛT AU RÉVEIL : les résas ouvrent le 1er du mois pour le mois suivant, quota journalier, part très vite.'},
    {id:'seedf_huw',url:'https://www.royal.go.kr',status:'toreserve',created:Date.now(),airline:'Palais Changdeokgung',destination:'🌿 Jardin secret Huwon',dates:'pour le 11 août',price:'~8 €',notes:'⏰ À réserver VERS LE 5 AOÛT (6 j avant). Visite guidée uniquement, créneaux anglais limités. ⚠️ Le 11 (mardi) et pas le 10 : le palais ferme le lundi.'},
    {id:'seedf_dmz',url:'https://www.klook.com',status:'booked',created:Date.now(),airline:'Tour guidé DMZ',destination:'🪖 DMZ — journée complète',dates:'27 août, 7h–16h',price:'~60 €',notes:'RÉSERVÉ. Pickup + dépose station Hongik Univ. sortie 3. ⚠️ PASSEPORT obligatoire. Petit-déj avant 7 h. Vérifier si le déjeuner est inclus.'},
@@ -754,6 +797,52 @@ function normalize(s){
 }
 
 /* ===================== ÉTAT ===================== */
+/* ===== Mode admin / visiteur ===== */
+const _qs=new URLSearchParams(location.search);
+if(_qs.get('admin')==='1'){try{localStorage.setItem('coree_admin','1');}catch(e){}}
+if(_qs.get('admin')==='0'){try{localStorage.removeItem('coree_admin');}catch(e){}}
+let ADMIN=false;try{ADMIN=localStorage.getItem('coree_admin')==='1';}catch(e){}
+const VIEWER=!ADMIN;
+
+function pubCfg(){try{return JSON.parse(localStorage.getItem('coree_pub_cfg')||'{}');}catch(e){return{};}}
+function savePubCfg(c){try{localStorage.setItem('coree_pub_cfg',JSON.stringify(c));}catch(e){}}
+function publishPayload(includeBudget){
+  const c=JSON.parse(JSON.stringify(STATE));
+  delete c.seedAirbnbV;delete c.seedFlightsV;
+  c.publishedAt=new Date().toISOString();
+  if(!includeBudget){
+    c.noBudget=true;delete c.budget;
+    ['airbnb','flights'].forEach(k=>{(c.links&&c.links[k]||[]).forEach(e=>{if(e)delete e.price;});});
+  }
+  return JSON.stringify(c);
+}
+function b64u(s){return btoa(unescape(encodeURIComponent(s)));}
+async function publishToGitHub(json,msgEl){
+  const c=pubCfg();
+  if(!c.owner||!c.repo||!c.token){msgEl.className='err';msgEl.textContent='Renseigne d\u2019abord la configuration GitHub (utilisateur, d\u00e9p\u00f4t, token) ci-dessous.';return;}
+  const br=c.branch||'main';
+  const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
+  const H={'Authorization':'Bearer '+c.token,'Accept':'application/vnd.github+json'};
+  msgEl.className='';msgEl.textContent='Publication en cours\u2026';
+  try{
+    let sha=null;
+    const g=await fetch(api+'?ref='+encodeURIComponent(br),{headers:H});
+    if(g.status===200){sha=(await g.json()).sha;}
+    const body={message:'Carnet Cor\u00e9e \u2014 mise \u00e0 jour '+new Date().toLocaleString('fr-FR'),content:b64u(json),branch:br};
+    if(sha)body.sha=sha;
+    const p=await fetch(api,{method:'PUT',headers:H,body:JSON.stringify(body)});
+    if(p.ok){msgEl.className='ok';msgEl.textContent='\u2705 Publi\u00e9 ! Ta famille verra la mise \u00e0 jour dans ~1 minute (rafra\u00eechir la page).';}
+    else if(p.status===401){msgEl.className='err';msgEl.textContent='\u274c Token refus\u00e9 (401). V\u00e9rifie qu\u2019il est valide et autoris\u00e9 en \u00e9criture (Contents) sur ce d\u00e9p\u00f4t.';}
+    else if(p.status===404){msgEl.className='err';msgEl.textContent='\u274c D\u00e9p\u00f4t ou branche introuvable (404). V\u00e9rifie utilisateur / d\u00e9p\u00f4t / branche.';}
+    else{msgEl.className='err';msgEl.textContent='\u274c Erreur GitHub '+p.status+'.';}
+  }catch(e){msgEl.className='err';msgEl.textContent='\u274c R\u00e9seau indisponible ou requ\u00eate bloqu\u00e9e ('+e.message+').';}
+}
+function applyViewerLocks(){
+  if(!VIEWER)return;
+  document.body.classList.add('viewer');
+  document.querySelectorAll('input,select,textarea').forEach(el=>{if(el.id!=='link-search')el.disabled=true;});
+}
+
 let STATE=buildSeed();
 let EDIT=false, curView='dash', curFilter='all', linkQuery='', airbnbZone='all';
 let openDays=new Set();
@@ -761,7 +850,7 @@ const TRIP_START=new Date('2026-08-07T00:00:00');
 const TRIP_END=new Date('2026-09-01T00:00:00');
 
 let saveTimer=null;
-function saveState(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{Store.set(KEY,JSON.stringify(STATE));flashSaved();},300);}
+function saveState(){if(VIEWER)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{Store.set(KEY,JSON.stringify(STATE));flashSaved();},300);}
 let flashTimer=null;
 function flashSaved(){const f=document.getElementById('save-flash');f.classList.add('show');clearTimeout(flashTimer);flashTimer=setTimeout(()=>f.classList.remove('show'),900);}
 
@@ -1002,6 +1091,7 @@ function download(blob,name){const url=URL.createObjectURL(blob);const a=documen
 function newSlot(){return {t:'00h00',ty:'culture',n:'Nouvelle étape',d:'Détails…',p:'',pt:'',done:false};}
 function newDay(){return {id:'J?',phase:(curFilter!=='all'?curFilter:'seoul1'),date:'2026-08-10',dateEnd:'',title:'Nouvelle journée',sub:'',total:'',slots:[]};}
 function doAct(act,el){
+  if(VIEWER&&act!=='go')return;
   const ds=el?el.dataset:{};const i=ds.i!=null?+ds.i:undefined,j=ds.j!=null?+ds.j:undefined;
   if(act==='go'){switchTab(ds.v);return;}
   switch(act){
@@ -1035,11 +1125,11 @@ document.addEventListener('click',e=>{
   const ib=e.target.closest('.slot-ib');
   if(ib){const sl=ib.closest('.slot');const p=sl&&sl.querySelector('.slot-info');if(p){p.classList.toggle('open');ib.classList.toggle('on');}return;}
   const chk=e.target.closest('.check');
-  if(chk){const slot=chk.closest('.slot');const di=+slot.dataset.di,si=+slot.dataset.si;const s=STATE.days[di].slots[si];s.done=!s.done;slot.classList.toggle('done',s.done);
+  if(chk){if(VIEWER)return;const slot=chk.closest('.slot');const di=+slot.dataset.di,si=+slot.dataset.si;const s=STATE.days[di].slots[si];s.done=!s.done;slot.classList.toggle('done',s.done);
     const card=slot.closest('.day-card');const lbl=card&&card.querySelector('.day-rprog');if(lbl){const pr=dayProgress(STATE.days[di]);lbl.textContent=`${pr.done}/${pr.total} fait${pr.done>1?'s':''}`;}
     saveState();return;}
   const pb=e.target.closest('.pbox');
-  if(pb){const it=pb.closest('.pitem');const pi=+it.dataset.pi;STATE.prep[pi].done=!STATE.prep[pi].done;it.classList.toggle('done',STATE.prep[pi].done);saveState();updatePrepMeta();return;}
+  if(pb){if(VIEWER)return;const it=pb.closest('.pitem');const pi=+it.dataset.pi;STATE.prep[pi].done=!STATE.prep[pi].done;it.classList.toggle('done',STATE.prep[pi].done);saveState();updatePrepMeta();return;}
   const head=e.target.closest('.day-head');
   if(head){if(EDIT&&e.target.closest('.ed,input,select,.delx'))return;const card=head.closest('.day-card');const id=card.dataset.day;if(openDays.has(id))openDays.delete(id);else openDays.add(id);card.classList.toggle('open');return;}
 });
@@ -1062,7 +1152,7 @@ document.addEventListener('change',e=>{
 
 /* ===================== NAV / TABS ===================== */
 function buildTabbar(){const tb=document.getElementById('tabbar');
-  tb.innerHTML=TABS.map(t=>`<button class="tabpill${t.id===curView?' active':''}" data-v="${t.id}"><span>${t.ic}</span>${t.label}</button>`).join('');
+  tb.innerHTML=TABS.filter(t=>!(VIEWER&&(t.id==='links'||(t.id==='budget'&&STATE.noBudget)))).map(t=>`<button class="tabpill${t.id===curView?' active':''}" data-v="${t.id}"><span>${t.ic}</span>${t.label}</button>`).join('');
   tb.querySelectorAll('.tabpill').forEach(b=>b.onclick=()=>switchTab(b.dataset.v));}
 function switchTab(id){curView=id;
   document.querySelectorAll('.tabpill').forEach(p=>p.classList.toggle('active',p.dataset.v===id));
@@ -1075,7 +1165,7 @@ function switchTab(id){curView=id;
 }
 
 /* ===================== ÉDITION TOGGLE ===================== */
-document.getElementById('editbtn').addEventListener('click',()=>{EDIT=!EDIT;document.body.classList.toggle('editing',EDIT);
+document.getElementById('editbtn').addEventListener('click',()=>{if(VIEWER)return;EDIT=!EDIT;document.body.classList.toggle('editing',EDIT);
   document.getElementById('editbtn-ic').textContent=EDIT?'✓':'✏️';document.getElementById('editbtn-tx').textContent=EDIT?'Terminé':'Modifier';renderAll();});
 
 /* ===================== OUTILS DONNÉES ===================== */
@@ -1095,16 +1185,51 @@ function renderAll(){REG={};eidc=0;syncAirbnbBudget();
 }
 
 /* ===================== INIT ===================== */
+/* ===== renderAll + verrous visiteur ===== */
+const __renderAll=renderAll;
+renderAll=function(){__renderAll();applyViewerLocks();};
+
+function wirePublish(){
+  const p=document.getElementById('pubpanel');if(!p)return;
+  if(ADMIN)p.style.display='block';
+  const c=pubCfg();
+  const $=id=>document.getElementById(id);
+  $('pubc-owner').value=c.owner||'';$('pubc-repo').value=c.repo||'';$('pubc-branch').value=c.branch||'';
+  if(c.token)$('pubc-token').placeholder='Token enregistré ✓ (retape pour changer)';
+  $('pub-cfg-toggle').onclick=()=>{const d=$('pub-cfg');d.style.display=d.style.display==='none'?'block':'none';};
+  $('pubc-save').onclick=()=>{const old=pubCfg();savePubCfg({owner:$('pubc-owner').value.trim(),repo:$('pubc-repo').value.trim(),branch:$('pubc-branch').value.trim()||'main',token:$('pubc-token').value.trim()||old.token||''});$('pub-msg').className='ok';$('pub-msg').textContent='Configuration enregistrée sur cet appareil (jamais publiée).';};
+  $('pub-github').onclick=()=>publishToGitHub(publishPayload($('pub-budget').checked),$('pub-msg'));
+  $('pub-dl').onclick=()=>{download(new Blob([publishPayload($('pub-budget').checked)],{type:'application/json'}),'data.json');$('pub-msg').className='ok';$('pub-msg').textContent='data.json téléchargé — dépose-le sur GitHub à côté de index.html.';};
+  $('pub-copy').onclick=async()=>{try{await navigator.clipboard.writeText(publishPayload($('pub-budget').checked));$('pub-msg').className='ok';$('pub-msg').textContent='JSON copié — colle-le dans GitHub (Add file → Create new file → data.json).';}catch(e){$('pub-msg').className='err';$('pub-msg').textContent='Copie impossible ici — utilise « Télécharger ».';}};
+}
+
 (async function init(){
+  if(VIEWER){
+    let shown=false;
+    try{
+      const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});
+      if(r.ok){const pub=await r.json();if(pub&&pub.days){STATE=normalize(pub);shown=true;}}
+    }catch(e){}
+    if(!shown){
+      try{const raw=await Store.get(KEY);if(raw){const o=JSON.parse(raw);if(o&&o.days){STATE=normalize(o);shown=true;}}}catch(e){}
+      if(!shown)STATE=buildSeed();
+    }
+    const bar=document.createElement('div');bar.className='viewerbar';
+    const d=STATE.publishedAt?new Date(STATE.publishedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):null;
+    bar.innerHTML='👀 <b>Carnet de voyage d\u2019Axel — Corée 2026</b> · consultation seule'+(d?' · mis à jour le '+d:'');
+    document.body.insertBefore(bar,document.body.firstChild);
+    buildTabbar();switchTab('dash');renderAll();
+    return;
+  }
   buildTabbar();
   let loaded=null;
   try{const raw=await Store.get(KEY);if(raw)loaded=JSON.parse(raw);}catch(e){}
   if(!loaded){
-    // Nouveau planning (9–30 août) : on repart de la graine à jour mais on conserve les liens déjà saisis.
     try{const old=await Store.get(OLD_KEY);if(old){const o=JSON.parse(old);const seed=buildSeed();if(o&&o.links)seed.links=o.links;loaded=seed;}}catch(e){}
   }
   STATE=(loaded&&loaded.days)?normalize(loaded):buildSeed();
   Store.set(KEY,JSON.stringify(STATE));
+  wirePublish();
   switchTab('dash');
   renderAll();
 })();
