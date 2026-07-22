@@ -244,7 +244,7 @@
   <div class="topbar">
     <div class="tb-top">
       <div>
-        <div class="tb-label">Planificateur privé · 2026</div>
+        <div class="tb-label">Planificateur privé · 2026 · <span style="opacity:.75">v15 · maj 22/07/2026</span></div>
         <div class="tb-title" id="tb-title"></div>
         <div class="tb-sub" id="tb-sub"></div>
       </div>
@@ -348,7 +348,7 @@ const Store=(()=>{
     }
   };
 })();
-const KEY='coree_state_v14', OLD_KEY='coree_state_v13';
+const KEY='coree_state_v15', OLD_KEY='coree_state_v14';
 
 /* ===================== HELPERS ===================== */
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -473,19 +473,27 @@ const DAYS=[
   {t:'18h30',ty:'food',n:'Dîner — Milmyeon',d:'<b>(73)</b> Nouilles froides, spécialité de Busan',p:'~8 €',pt:''},
   {t:'20h30',ty:'nature',n:'🌉 Plage Gwangalli + pont illuminé',d:'<b>(66)</b> Gwangan Bridge la nuit, bars en bord de mer',p:'Gratuit',pt:'free'}
 ]},
-{id:'J11',phase:'busan',date:'2026-08-18',title:'Busan est — Temple mer, Haeundae & Spa',sub:'Mardi 18 août',total:'~85 €',slots:[
-  {t:'08h30',ty:'culture',n:'Temple Haedong Yonggungsa',d:'<b>(65)</b> Temple sur la falaise face à la mer · matin = calme',p:'Gratuit',pt:'free'},
-  {t:'11h00',ty:'nature',n:'🚎 Haeundae Blueline Park (sky capsule)',d:'<b>(68)</b> Capsules colorées sur rail côtier + beach train',p:'~25 €',pt:''},
-  {t:'13h30',ty:'food',n:'Déjeuner — Dwaeji Gukbap',d:'Soupe porc-riz, emblème de Busan',p:'~7 €',pt:''},
-  {t:'15h00',ty:'nature',n:'🏖️ Plage Haeundae + 🌆 Busan X the Sky',d:'<b>(64)</b> Baignade · <b>(69)</b> Observatoire 100e étage si le temps',p:'~15 €',pt:''},
-  {t:'18h00',ty:'sleep',n:'🧖 Spa Land (Shinsegae Centum)',d:'<b>(72)</b> Jjimjilbang haut de gamme, saunas variés',p:'~12 €',pt:''}
+{id:'J11',phase:'busan',date:'2026-08-18',title:'Busan est — Yonggungsa, Blueline, Spa & X the Sky',sub:'Mardi 18 août',total:'~95 €',slots:[
+  {t:'08h00',ty:'food',n:'Petit-déjeuner à Haeundae',d:'Léger avant la boucle est de la journée',p:'~5 €',pt:''},
+  {t:'08h20',ty:'travel',n:'🚌 Bus 181 → Haedong Yonggungsa',d:'~35 min depuis Haeundae (ou taxi ~20 min)',p:'~1 €',pt:'transport'},
+  {t:'09h00',ty:'culture',n:'Temple Haedong Yonggungsa',d:'<b>(65)</b> Temple sur la falaise face à la mer · tôt = calme et lumière douce',p:'Gratuit',pt:'free'},
+  {t:'09h55',ty:'travel',n:'🚕 Taxi Yonggungsa → Songjeong',d:'~10 min · tout est à l\'est, on redescend ensuite vers l\'ouest',p:'~5 €',pt:'transport'},
+  {t:'10h10',ty:'nature',n:'🏖️ Plage de Songjeong',d:'Balade, café, point de vue · départ du beach train ici',p:'—',pt:'free'},
+  {t:'10h50',ty:'travel',n:'🚂 Beach Train Songjeong → Cheongsapo — RÉSERVÉ',d:'<b>(68)</b> Réservé sur Bluelinepark, créneau <b>11h00</b> · embarquement 10 min avant · ⚠️ aller simple : une fois descendu à Cheongsapo, on ne remonte pas → on fait tout à pied là-bas',p:'inclus',pt:'transport'},
+  {t:'11h10',ty:'nature',n:'🔭 Cheongsapo à pied — Haewol Observatory, phares & Daritdol',d:'Tout est groupé : <b>Haewol Observatory</b> (plateforme de verre au-dessus de la falaise), les <b>2 phares</b> rouge & blanc, et le skywalk <b>Daritdol</b> · ~50 min tranquille',p:'Gratuit',pt:'free'},
+  {t:'12h00',ty:'nature',n:'🚡 Sky Capsule Cheongsapo → Mipo — RÉSERVÉ',d:'<b>(68)</b> Réservé sur Trip.com, créneau <b>12h00–12h30</b> · le tronçon panoramique au-dessus de l\'eau · retrait du billet au guichet (garder le voucher)',p:'~25 €',pt:''},
+  {t:'12h35',ty:'travel',n:'À pied Mipo → Haeundae',d:'~5 min · tu es de retour au pied de ton logement',p:'—',pt:'free'},
+  {t:'12h45',ty:'food',n:'Déjeuner — Dwaeji Gukbap',d:'Soupe porc-riz, emblème de Busan',p:'~7 €',pt:''},
+  {t:'15h00',ty:'sleep',n:'🧖 Spa Land (Shinsegae Centum) — RÉSERVÉ',d:'<b>(72)</b> Bon d\'échange Klook · saunas variés, on récupère de la marche · ⚠️ limite 4h, ferme ~22h · métro ~15 min',p:'~12 €',pt:''},
+  {t:'18h30',ty:'culture',n:'🌆 Busan X the Sky — COUCHER DE SOLEIL — RÉSERVÉ',d:'<b>(69)</b> Billet Klook (retrait physique au guichet) · 100e étage de la LCT Tower à Haeundae · coucher de soleil ~19h15-19h25 → jour + nuit sur la baie · ⚠️ vérifier l\'heure exacte du coucher pour arriver 15-20 min avant',p:'~22 €',pt:''},
+  {t:'20h30',ty:'food',n:'Dîner à Haeundae',d:'Fruits de mer ou BBQ, sur le retour',p:'~15 €',pt:''}
 ]},
 {id:'J12',phase:'busan',date:'2026-08-19',title:'Busan sud — Songdo, Taejongdae & ⚾ LOTTE GIANTS',sub:'Mercredi 19 août',total:'~90 €',slots:[
   {t:'09h30',ty:'nature',n:'Songdo Skywalk & téléphérique',d:'<b>(67)</b> Passerelle de verre + cable car au-dessus de la mer',p:'~12 €',pt:''},
   {t:'12h30',ty:'food',n:'Déjeuner bord de mer',d:'Fruits de mer / hoe',p:'~14 €',pt:''},
   {t:'14h00',ty:'nature',n:'Taejongdae',d:'<b>(70)</b> Falaises, phare, petit train panoramique',p:'~4 €',pt:''},
-  {t:'17h30',ty:'food',n:'Dîner rapide près du stade',d:'Ou mieux : poulet frit + bière à emporter en tribune (la tradition)',p:'~10 €',pt:''},
-  {t:'18h30',ty:'culture',n:'⚾ LOTTE GIANTS — Stade Sajik',d:'<b>NOUVEAU</b> · Surnommé « le plus grand karaoké du monde » : l\'ambiance la plus folle de la KBO · métro Sajik (ligne 3) · ⚠️ <b>vérifier que les Giants jouent à domicile</b> (pas de match le lundi) · billets ~7 j avant',p:'~12 €',pt:''}
+  {t:'17h15',ty:'food',n:'🍗 Poulet frit + bière avant le stade',d:'La tradition KBO : tu t\'installes en tribune, tu vois les chants démarrer',p:'~10 €',pt:''},
+  {t:'18h30',ty:'culture',n:'⚾ LOTTE GIANTS vs KIWOOM HEROES — Stade Sajik',d:'<b>CONFIRMÉ 100%</b> · série domicile 18-20/8 · « le plus grand karaoké du monde », l\'ambiance la plus folle de la KBO · métro Sajik (ligne 3, sortie 1) · sacs plastique orange pour les chants · <b>Jamsil et Sajik : ambiance à ne pas manquer</b>',p:'~12 €',pt:''}
 ]},
 {id:'J13',phase:'seoul2',date:'2026-08-20',title:'Busan → Séoul — Gangnam, Bongeunsa & ⚾ LG TWINS',sub:'Jeudi 20 août',total:'~100 €',slots:[
   {t:'09h30',ty:'travel',n:'🚅 KTX Busan → Séoul — RÉSERVÉ',d:'Arrivée <b>11h10</b> · dépose des bagages ou consigne (casiers T-money à la gare si check-in à 15h)',p:'~45 €',pt:'transport'},
@@ -682,7 +690,7 @@ function flightsSeed(){
    {id:'seedf_b2',url:'https://www.bustago.or.kr/newweb/en/index.do',status:'toreserve',created:Date.now(),airline:'Bus interurbain',destination:'Gyeongju → Busan',dates:'17 août — ~09h00',price:'~7 500–12 000 ₩',notes:'Toutes les 15–30 min (07h00→22h40), ~50 min. Pas besoin de réserver, même le 17 (férié de substitution). Arrivée Busan Central (Nopo, ligne 1). Si tu dors à Haeundae : bus direct Gyeongju → Haeundae (~1h17), terminal INTERURBAIN (sortie 2 du métro Haeundae).'},
    {id:'seedf_k2',url:'https://www.letskorail.com',status:'booked',created:Date.now(),airline:'Korail — KTX',destination:'Busan → Séoul',dates:'20 août',price:'~45 €',notes:'RÉSERVÉ — arrivée Séoul 11h10. Consigne à bagages (T-money) à la gare si le check-in est à 15h.'},
    {id:'seedf_t1',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink GLOBAL',destination:'⚾ LG Twins vs KT Wiz — Jamsil',dates:'20 août 18h30',price:'12 000–70 000 ₩',notes:'⚠️ OUVERTURE jeu. 13/8 à 11h00 (tu seras à Séoul). Version /global/en UNIQUEMENT (la coréenne exige un n° coréen + carte de résident). Compte par e-mail, carte étrangère OK, payer en 5 min. Côté 1re base = tribune LG. Retrait au Ticket Box du stade.'},
-   {id:'seedf_t2',url:'https://m.ticketlink.co.kr/global/en/cs/apply',status:'toreserve',created:Date.now(),airline:'Ticketlink Global / guichet',destination:'⚾ Lotte Giants — Stade Sajik (Busan)',dates:'18 ou 19 août',price:'~12 000 ₩',notes:'NOUVEAU. « Le plus grand karaoké du monde ». ⚠️ Vérifier le calendrier : Giants à domicile ? Pas de match le lundi (donc pas le 17). Vente ~7 j avant. Plan B : guichet du stade.'},
+   {id:'seedf_t2',url:'https://www.klook.com',status:'toreserve',created:Date.now(),airline:'Klook / guichet Sajik',destination:'⚾ Lotte Giants vs Kiwoom — Sajik (Busan)',dates:'19 août 18h30',price:'~12 000 ₩',notes:'CONFIRMÉ 100% (calendrier vérifié) : Giants vs Kiwoom Heroes à Sajik, série domicile 18-20/8. « Le plus grand karaoké du monde ». Réserver à l\'avance sur Klook/Trazy (place garantie, interface anglaise, pas de vérif coréenne) OU guichet du stade en semaine (passeport). Métro Sajik ligne 3.'},
    {id:'seedf_nol',url:'https://world.nol.com',status:'toreserve',created:Date.now(),airline:'NOL World',destination:'🏆 Billets LCK (LoL Park)',dates:'12, 13, 21, (28) et 29 août',price:'~24–30 € / match',notes:'CALENDRIER OFFICIEL — tes sessions possibles : 12/8 (19h KT-Dplus), 13/8 (19h Gen.G-HLE 🔥 + 17h DRX-FEARX), 21/8 (affiche TBC), 28/8 (Play-In TBC), 29/8 (PLAYOFFS UB R1 17h). Vente ~48h avant, part en ~1 min. Option jour d\'arrivée : 8/8 17h T1 vs HLE (acheter depuis la France le ~6/8). ℹ️ T1 Home Ground au KSPO Dome du 14 au 16/8 (tu es à Jeonju/Gyeongju) · grande finale 13 sept. au KSPO (après ton départ).'},
    {id:'seedf_hal',url:'https://visithalla.jeju.go.kr',status:'toreserve',created:Date.now(),airline:'Parc national de Hallasan',destination:'🥾 Résa Hallasan (Seongpanak)',dates:'pour le 23 août',price:'Gratuit',notes:'⏰ RAPPEL 1er AOÛT AU RÉVEIL : les résas ouvrent le 1er du mois pour le mois suivant, quota journalier, part très vite.'},
    {id:'seedf_huw',url:'https://www.royal.go.kr',status:'toreserve',created:Date.now(),airline:'Palais Changdeokgung',destination:'🌿 Jardin secret Huwon',dates:'pour le 11 août',price:'~8 €',notes:'⏰ À réserver VERS LE 5 AOÛT (6 j avant). Visite guidée uniquement, créneaux anglais limités. ⚠️ Le 11 (mardi) et pas le 10 : le palais ferme le lundi.'},
@@ -690,6 +698,10 @@ function flightsSeed(){
    {id:'seedf_sky',url:'https://www.klook.com',status:'toreserve',created:Date.now(),airline:'Klook / Trazy / Waug',destination:'🌆 Seoul Sky — Lotte World Tower',dates:'26 août ~18h15',price:'~31 000 ₩',notes:'Produit « Lotte World Tower SEOUL SKY Observatory » — PAS « Lotte World Adventure » (le parc). Billet standard (117-123e), pas le Fast Pass à 62 000 ₩. Billet date-libre = tu viens quand tu veux ce jour-là. Valable uniquement le 26.'},
    {id:'seedf_ntw',url:'https://www.nseoultower.co.kr',status:'toreserve',created:Date.now(),airline:'N Seoul Tower',destination:'🌃 Observatoire Namsan — DE NUIT',dates:'9 août ~21h',price:'~21 000 ₩',notes:'Dimanche = fermeture 23h (dernière entrée 22h30). Téléphérique jusqu\'à 23h, depuis Myeongdong sortie 3. Billet observatoire ≠ téléphérique (2 achats). Trazy/Klook font des billets « open » ±7 j (utile si pluie).'},
    {id:'seedf_cook',url:'https://www.klook.com',status:'toreserve',created:Date.now(),airline:'Klook / GetYourGuide',destination:'🍳 Cours de cuisine coréenne',dates:'26 août ~10h30',price:'~35 €',notes:'Petits groupes → réserver à l\'avance. Kimchi / tteokbokki / bibimbap.'},
+   {id:'seedf_btr',url:'https://www.bluelinepark.com',status:'booked',created:Date.now(),airline:'Blueline Park',destination:'🚂 Beach Train Songjeong → Cheongsapo',dates:'18 août 11h00',price:'réservé',notes:'RÉSERVÉ sur Bluelinepark. Départ Songjeong, créneau 11h00 (embarquement 10 min avant). ⚠️ Aller simple : une fois descendu à Cheongsapo, pas de remontée → visites à pied sur place (Haewol, phares, Daritdol), puis Sky Capsule.'},
+   {id:'seedf_cap',url:'https://www.trip.com',status:'booked',created:Date.now(),airline:'Trip.com (Blueline)',destination:'🚡 Sky Capsule Cheongsapo → Mipo',dates:'18 août 12h00-12h30',price:'réservé',notes:'RÉSERVÉ sur Trip.com. Sens Cheongsapo → Mipo, créneau 12h00-12h30. Garder le voucher, retrait/échange au guichet Cheongsapo. Termine à Mipo, à 5 min de Haeundae.'},
+   {id:'seedf_spa',url:'https://www.klook.com',status:'booked',created:Date.now(),airline:'Klook',destination:'🧖 Spa Land — Shinsegae Centum City',dates:'18 août ~15h',price:'réservé',notes:'RÉSERVÉ (bon d\'échange Klook). ⚠️ Limite de 4h, ferme ~22h (pas un jjimjilbang 24h). Métro Centum City. Serviette/tenue fournies sur place.'},
+   {id:'seedf_xsky',url:'https://www.klook.com',status:'booked',created:Date.now(),airline:'Klook',destination:'🌆 Busan X the Sky (LCT Tower)',dates:'18 août ~18h30 (coucher)',price:'réservé',notes:'RÉSERVÉ sur Klook — RETRAIT PHYSIQUE du billet au guichet. 100e étage à Haeundae. Vise le coucher de soleil (~19h15-19h25) : jour + heure bleue + nuit sur la baie. Arriver 15-20 min avant.'},
    {id:'seedf_esim',url:'https://www.ubigi.com',status:'toreserve',created:Date.now(),airline:'Ubigi',destination:'📱 eSIM 30 jours',dates:'avant le départ',price:'~60 €',notes:'Achetable maintenant, activation à l\'arrivée. ⚠️ Ne permet PAS la vérification d\'identité coréenne (d\'où Ticketlink Global).'},
    {id:'seedf_ear',url:'https://www.e-arrivalcard.go.kr',status:'toreserve',created:Date.now(),airline:'e-Arrival Card',destination:'🛂 Déclaration d\'arrivée',dates:'à faire vers le 4-5 août',price:'Gratuit',notes:'Obligatoire, gratuite, dans les 72 h avant l\'arrivée — pas avant. K-ETA : rien à faire (Français exemptés jusqu\'au 31/12/2026).'}
   ];
@@ -741,13 +753,13 @@ function normalize(s){
     }
   }
   if(!s.links.flights.length)s.links.flights=flightsSeed();
-  else if(s.seedFlightsV!==2){
+  else if(s.seedFlightsV!==3){
     const fs2=flightsSeed(),fm={};fs2.forEach(x=>fm[x.id]=x);
     s.links.flights=s.links.flights.filter(e=>!(e&&typeof e.id==='string'&&e.id.indexOf('seedf_')===0&&!fm[e.id]));
     s.links.flights.forEach(e=>{const sd=e&&fm[e.id];if(sd){e.airline=sd.airline;e.destination=sd.destination;e.dates=sd.dates;e.notes=sd.notes;e.url=sd.url;if(sd.status==='booked')e.status=sd.status;}});
     const pr={};s.links.flights.forEach(e=>{if(e)pr[e.id]=1;});
     fs2.forEach(sd=>{if(!pr[sd.id])s.links.flights.push(sd);});
-    s.seedFlightsV=2;
+    s.seedFlightsV=3;
   }
   s.budget=s.budget.filter(b=>b.id!=='airbnb_auto');
   s.budget.forEach(b=>{if(b.auto&&b.id!=='hotel')delete b.auto;});
